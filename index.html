@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>PYGAME | TEST MODE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    
+    <style>
+        :root {
+            --neon: #00f2ff;
+            --bg-dark: #000000;
+            --panel-bg: #0a0a0a;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            height: 100vh;
+            background-color: var(--bg-dark);
+            color: var(--neon);
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+        }
+
+        /* ШАПКА */
+        .top-header {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 60px;
+            background: linear-gradient(180deg, rgba(0, 242, 255, 0.15) 0%, transparent 100%);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.2);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px; box-sizing: border-box; z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        .header-logo { font-size: 1.2em; letter-spacing: 4px; font-weight: bold; text-shadow: 0 0 10px var(--neon); }
+        .header-info { font-family: 'JetBrains Mono', monospace; font-size: 0.75em; opacity: 0.8; }
+
+        .wrapper {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            padding-top: 60px;
+            box-sizing: border-box;
+        }
+
+        /* ЛЕВАЯ ЧАСТЬ (1/3 ПУСТОТА) */
+        .empty-sidebar {
+            flex: 1;
+            background-color: #000;
+        }
+
+        /* ПРАВАЯ ЧАСТЬ (2/3 ВИДЕО) */
+        .main-view {
+            flex: 2;
+            display: flex; align-items: center; justify-content: center;
+            background-color: #050505;
+            position: relative;
+        }
+
+        .video-container {
+            width: 85%; height: 70%;
+            position: relative;
+            background: var(--panel-bg);
+            border-radius: 40px;
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 255, 0.05);
+        }
+
+        /* ШЕСТЕРЕНКА */
+        .gear-icon {
+            position: absolute; top: -35px; left: 50%;
+            transform: translateX(-50%);
+            width: 70px; height: 70px; z-index: 10;
+            filter: drop-shadow(0 0 12px var(--neon));
+            animation: spin 5s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: translateX(-50%) rotate(0deg); }
+            to { transform: translateX(-50%) rotate(360deg); }
+        }
+
+        .video-js { width: 100% !important; height: 100% !important; border-radius: 40px !important; }
+        .vjs-poster, .video-js video { border-radius: 40px !important; }
+
+        .brand-label {
+            position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%);
+            font-size: 0.7em; letter-spacing: 2px; opacity: 0.4;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="header-logo">PYGAME_OS</div>
+        <div id="live-clock" class="header-info">SYSTEM_STATUS: TEST_MODE // 00:00:00</div>
+    </header>
+
+    <div class="wrapper">
+        <aside class="empty-sidebar"></aside>
+
+        <main class="main-view">
+            <div class="video-container">
+                <svg class="gear-icon" viewBox="0 0 24 24" fill="none" stroke="#00f2ff" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83
+2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+
+                <video id="pygame-video" class="video-js vjs-big-play-centered" controls preload="auto">
+                    <source src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" type="application/x-mpegURL">
+                </video>
+
+                <div class="brand-label">MISSION_CONTROL_TEST_SIGNAL</div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script>
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = SYSTEM_STATUS: TEST_MODE // ${now.toLocaleTimeString()};
+        }, 1000);
+    </script>
+</body>
+</html>
