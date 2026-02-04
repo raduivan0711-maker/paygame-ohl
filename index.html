@@ -20,7 +20,7 @@
         .log-msg.sent { color: var(--neon); font-weight: bold; }
 
         .input-area { display: flex; border-top: 1px solid rgba(0,242,255,0.2); background: #0a0a0a; }
-        #user-input { flex: 1; background: transparent; border: none; color: var(--neon); padding: 15px; font-family: 'JetBrains Mono'; outline: none; }
+        #user-input { flex: 1; background: transparent; border: none; color: var(--neon); padding: 15px; font-family: 'JetBrains Mono'; outline: none; font-size: 14px; }
         #send-btn { background: rgba(0,242,255,0.1); color: var(--neon); border: none; padding: 0 20px; cursor: pointer; font-family: 'Orbitron'; font-size: 10px; border-left: 1px solid rgba(0,242,255,0.2); }
         #send-btn:hover { background: var(--neon); color: #000; }
 
@@ -41,75 +41,12 @@
         <div class="sidebar">
             <h3 style="margin:0 0 15px 0; font-size: 14px; letter-spacing: 2px;">BOT_CONTROL</h3>
             <div class="terminal-box">
-                <div class="terminal-header">UPLINK_STATUS: ONLINE | ID: 2078363462</div>
+                <div class="terminal-header">UPLINK: ONLINE | TARGET_ID: 2078363462</div>
                 <div id="log">
                     <div class="log-msg">> System ready.</div>
                     <div class="log-msg">> Connected to @Pygame_01_bot.</div>
-                    <div class="log-msg">> User: Валерий.</div>
+                    <div class="log-msg">> Welcome, Валерий.</div>
                 </div>
                 <div class="input-area">
                     <input type="text" id="user-input" placeholder="Введите команду..." autocomplete="off">
                     <button id="send-btn">SEND</button>
-</div>
-            </div>
-        </div>
-        <div class="main">
-            <div class="video-box">
-                <svg class="gear" viewBox="0 0 24 24" fill="none" stroke="#00f2ff" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
-                <video id="vid" class="video-js vjs-big-play-centered" controls preload="auto">
-                    <source src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" type="application/x-mpegURL">
-                </video>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-    <script>
-        // ДАННЫЕ ВАШЕГО БОТА
-        const BOT_TOKEN = '8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo';
-        const CHAT_ID = '2078363462';
-
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
-
-        const input = document.getElementById('user-input');
-        const btn = document.getElementById('send-btn');
-        const log = document.getElementById('log');
-
-        async function sendToBot() {
-            const text = input.value.trim();
-            if(!text) return;
-
-            const entry = document.createElement('div');
-            entry.className = 'log-msg sent';
-            entry.innerText = > Sending: ${text};
-            log.appendChild(entry);
-            log.scrollTop = log.scrollHeight;
-            input.value = '';
-
-            try {
-                const url = https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)};
-                const response = await fetch(url);
-                if (response.ok) {
-                    const ok = document.createElement('div');
-                    ok.className = 'log-msg';
-                    ok.innerText = > Status: Message delivered.;
-                    log.appendChild(ok);
-                }
-            } catch (e) {
-                const err = document.createElement('div');
-                err.className = 'log-msg';
-                err.style.color = 'red';
-                err.innerText = '> Status: Transmission error.';
-                log.appendChild(err);
-            }
-            log.scrollTop = log.scrollHeight;
-        }
-
-        btn.addEventListener('click', sendToBot);
-        input.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendToBot(); });
-    </script>
-</body>
-</html>
