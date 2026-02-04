@@ -23,13 +23,13 @@
 </head>
 <body>
     <header class="top-header">
-        <div>PYGAME_OS // ONLINE_DASHBOARD</div>
+        <div>PYGAME_OS // SYSTEM_FIXED</div>
         <div id="clock">00:00:00</div>
     </header>
     <div class="wrapper">
         <div class="sidebar">
             <div class="terminal-box">
-                <div id="log"><div>> System initialized.</div></div>
+                <div id="log"><div>> System ready. Version 4.0</div></div>
                 <div class="input-area">
                     <input type="text" id="user-input" placeholder="Введите команду...">
                     <button id="send-btn">SEND</button>
@@ -46,42 +46,30 @@
     </div>
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script>
-        const BOT_TOKEN = '8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo';
-        const CHAT_ID = '2078363462';
+        // Использованы напрямую строки без переменных, чтобы избежать ошибок синтаксиса
+        setInterval(function() { 
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString(); 
+        }, 1000);
 
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+        var btn = document.getElementById('send-btn');
+        var input = document.getElementById('user-input');
+        var log = document.getElementById('log');
 
-        const input = document.getElementById('user-input');
-        const btn = document.getElementById('send-btn');
-        const log = document.getElementById('log');
+        function doSend() {
+            var val = input.value;
+            if(!val) return;
 
-        function sendMessage() {
-            const text = input.value.trim();
-            if (!text) return;
+            // Пишем в лог на сайте
+            var div = document.createElement('div');
+            div.innerText = "> Sending: " + val;
+            log.appendChild(div);
+            input.value = "";
 
-            // Вывод в терминал на сайте
-            const msg = document.createElement('div');
-            msg.innerText = '> Sending: ' + text;
-            log.appendChild(msg);
-            input.value = '';
+            // Прямой запрос в Telegram
+            var token = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
+            var chat = "2078363462";
+            var url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat + "&text=" + encodeURIComponent(val);
 
-            // Отправка в ТГ
-            const url = https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)};
-fetch(url).then(() => {
-                const ok = document.createElement('div');
-                ok.innerText = '> Delivered.';
-                ok.style.opacity = '0.5';
-                log.appendChild(ok);
-            }).catch(() => {
-                const err = document.createElement('div');
-                err.innerText = '> Error.';
-                err.style.color = 'red';
-                log.appendChild(err);
-            });
-        }
-
-        btn.onclick = sendMessage;
-        input.onkeydown = (e) => { if (e.key === 'Enter') sendMessage(); };
-    </script>
-</body>
-</html>
+            fetch(url);
+            log.scrollTop = log.scrollHeight;
+   
