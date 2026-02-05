@@ -1,91 +1,95 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>ROBOT CONTROL</title>
+    <title>ROBOT CONTROL - Пользовательский режим</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            background: #0a0a0a; 
-            color: #0ff; 
-            font-family: 'Courier New', monospace;
-            height: 100vh;
-            padding: 20px;
+            margin: 0;
+            background: #111;
+            color: #00ffcc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .container {
             max-width: 800px;
             margin: 0 auto;
-            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(90deg, #002244, #004466);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .chat-window {
+            flex: 1;
+            background: #000;
+            border: 2px solid #00ffcc;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 20px;
             display: flex;
             flex-direction: column;
         }
         
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #0ff;
-        }
-        
-        .status {
-            background: #111;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .chat-box {
-            flex: 1;
-            background: #111;
-            border: 1px solid #0ff;
-            border-radius: 5px;
-            padding: 15px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
-        
         .message {
             margin: 10px 0;
-            padding: 8px;
-            border-radius: 5px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
         }
         
         .user-message {
-            background: rgba(0, 255, 255, 0.1);
-            border-left: 3px solid #0ff;
+            background: #003333;
+            align-self: flex-end;
+            border-left: 4px solid #00ffcc;
+        }
+        
+        .bot-message {
+            background: #330033;
+            align-self: flex-start;
+            border-left: 4px solid #ff00ff;
         }
         
         .system-message {
-            background: rgba(0, 255, 0, 0.1);
-            border-left: 3px solid #0f0;
-            color: #0f0;
+            background: #333300;
+            align-self: center;
+            border: 1px dashed #ffff00;
+            max-width: 90%;
+            text-align: center;
         }
         
-        .command-buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+        .controls {
+            display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
         
-        .cmd-btn {
-            background: #222;
-            border: 1px solid #0ff;
-            color: #0ff;
+        .control-btn {
+            flex: 1;
             padding: 15px;
-            border-radius: 5px;
+            background: #002244;
+            border: 2px solid #00ffcc;
+            color: #00ffcc;
+            border-radius: 8px;
             cursor: pointer;
-            text-align: center;
-            font-size: 18px;
-            transition: all 0.2s;
+            font-size: 16px;
+            transition: all 0.3s;
         }
         
-        .cmd-btn:hover {
-            background: #0ff;
+        .control-btn:hover {
+            background: #00ffcc;
             color: #000;
+            transform: translateY(-2px);
         }
         
         .input-area {
@@ -93,125 +97,174 @@
             gap: 10px;
         }
         
-        #custom-cmd {
+        #message-input {
             flex: 1;
-            background: #222;
-            border: 1px solid #0ff;
+            padding: 15px;
+            background: #000;
+            border: 2px solid #00ffcc;
             color: #fff;
-            padding: 12px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
+            border-radius: 8px;
+            font-size: 16px;
         }
         
-        #send-btn {
-            background: #0ff;
+        #send-button {
+            padding: 0 30px;
+            background: #00ffcc;
             color: #000;
             border: none;
-            padding: 0 30px;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            font-family: 'Courier New', monospace;
+            font-size: 16px;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #002244;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .online {
+            color: #00ff00;
+        }
+        
+        .offline {
+            color: #ff0000;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🤖 УПРАВЛЕНИЕ РОБОТОМ</h1>
-            <p>Команды отправляются напрямую в PyGame через Telegram</p>
-        </div>
+        <header>
+            <h1>🤖 ИГРОВОЙ ПУЛЬТ УПРАВЛЕНИЯ</h1>
+            <p>Вы: <strong style="color:#00ffcc">Игрок_01</strong> | Чат: <strong style="color:#ff00ff">Робот Команды</strong></p>
+        </header>
         
-        <div class="status">
-            <div>Статус: <span id="status" style="color:#0f0">● Готов</span></div>
-            <div>Бот: <span style="color:#0ff">@pygame_bot</span></div>
-        </div>
-        
-        <div class="chat-box" id="chat-box">
+        <div class="chat-window" id="chat-window">
             <!-- Сообщения будут здесь -->
         </div>
         
-        <div class="command-buttons">
-            <div class="cmd-btn" onclick="sendCommand('вперед')">↑ ВПЕРЕД</div>
-            <div class="cmd-btn" onclick="sendCommand('назад')">↓ НАЗАД</div>
-            <div class="cmd-btn" onclick="sendCommand('влево')">← ВЛЕВО</div>
-            <div class="cmd-btn" onclick="sendCommand('вправо')">→ ВПРАВО</div>
-            <div class="cmd-btn" onclick="sendCommand('стоп')" style="grid-column: span 2;">⏹ СТОП</div>
-            <div class="cmd-btn" onclick="sendCommand('домой')" style="grid-column: span 2;">🏠 ДОМОЙ</div>
+        <div class="controls">
+            <button class="control-btn" onclick="sendAction('вперед')">↑ ВПЕРЕД</button>
+            <button class="control-btn" onclick="sendAction('назад')">↓ НАЗАД</button>
+            <button class="control-btn" onclick="sendAction('влево')">← ВЛЕВО</button>
+            <button class="control-btn" onclick="sendAction('вправо')">→ ВПРАВО</button>
+            <button class="control-btn" onclick="sendAction('стоп')" style="background:#440000;border-color:#ff0000;">⏹ СТОП</button>
         </div>
         
         <div class="input-area">
-            <input type="text" id="custom-cmd" placeholder="Или введите свою команду..." autocomplete="off">
-            <button id="send-btn" onclick="sendCustomCommand()">ОТПРАВИТЬ</button>
+            <input type="text" id="message-input" placeholder="Введите команду или сообщение..." autocomplete="off">
+            <button id="send-button" onclick="sendMessage()">📤</button>
+        </div>
+        
+        <div class="status-bar">
+            <div>Статус: <span id="connection-status" class="online">● В сети</span></div>
+            <div>Бот: <span class="online">PyGame Receiver</span></div>
+            <div>Сообщений: <span id="message-count">0</span></div>
         </div>
     </div>
 
     <script>
         // ========== КОНФИГУРАЦИЯ ==========
-        // Используем только ВТОРОГО бота (которого слушает PyGame)
         const BOT_TOKEN = "7208925888:AAEMIL5YKKlKw_xQSZoRB9gabaAvm2T0weQ";
         const CHAT_ID = "-5063173925";
+        const USERNAME = "Игрок_01"; // Ваше имя пользователя на сайте
         
         // ========== ПЕРЕМЕННЫЕ ==========
-        const chatBox = document.getElementById('chat-box');
-        const customCmd = document.getElementById('custom-cmd');
-        const status = document.getElementById('status');
+        let messageCount = 0;
+        const chatWindow = document.getElementById('chat-window');
+        const messageInput = document.getElementById('message-input');
+        const messageCountSpan = document.getElementById('message-count');
+        const statusSpan = document.getElementById('connection-status');
         
         // ========== ФУНКЦИИ ==========
         
         // Добавить сообщение в чат
-        function addMessage(text, type = 'system') {
-            const msg = document.createElement('div');
-            msg.className = `message ${type === 'user' ? 'user-message' : 'system-message'}`;
+        function addMessage(text, sender = 'user') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender === 'user' ? 'user-message' : sender === 'system' ? 'system-message' : 'bot-message'}`;
             
-            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            msg.innerHTML = `<strong>[${time}]</strong> ${text}`;
+            const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
             
-            chatBox.appendChild(msg);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            if (sender === 'user') {
+                messageDiv.innerHTML = `
+                    <div style="font-weight:bold;color:#00ffcc">${USERNAME}</div>
+                    <div>${text}</div>
+                    <div style="font-size:10px;color:#888;text-align:right">${time}</div>
+                `;
+            } else if (sender === 'system') {
+                messageDiv.innerHTML = `
+                    <div style="color:#ffff00">⚡ ${text}</div>
+                    <div style="font-size:10px;color:#888">${time}</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div style="font-weight:bold;color:#ff00ff">🤖 Робот</div>
+                    <div>${text}</div>
+                    <div style="font-size:10px;color:#888;text-align:right">${time}</div>
+                `;
+            }
+            
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            
+            // Обновить счетчик
+            messageCount++;
+            messageCountSpan.textContent = messageCount;
         }
         
-        // Отправить команду
-        function sendCommand(cmd) {
-            if (!cmd) return;
+        // Отправить действие (команду движения)
+        function sendAction(action) {
+            // Показать в чате как от пользователя
+            addMessage(`Выполняю: ${action.toUpperCase()}`, 'user');
+            
+            // Отправить в Telegram через бота
+            sendToTelegram(action);
+            
+            // Добавить системное сообщение
+            setTimeout(() => {
+                addMessage(`Команда "${action}" отправлена роботу`, 'system');
+            }, 500);
+        }
+        
+        // Отправить произвольное сообщение
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text) return;
             
             // Показать в чате
-            addMessage(`<strong>Вы:</strong> ${cmd.toUpperCase()}`, 'user');
+            addMessage(text, 'user');
             
-            // Отправить через Telegram
-            sendToTelegram(cmd);
+            // Отправить в Telegram
+            sendToTelegram(text);
+            
+            // Очистить поле
+            messageInput.value = '';
         }
         
-        // Отправить свою команду
-        function sendCustomCommand() {
-            const cmd = customCmd.value.trim().toLowerCase();
-            if (!cmd) return;
-            
-            sendCommand(cmd);
-            customCmd.value = '';
-        }
-        
-        // Отправить через Telegram API
-        function sendToTelegram(command) {
+        // Отправить в Telegram
+        function sendToTelegram(text) {
             // Показать отправку
-            status.textContent = '● Отправка...';
-            status.style.color = '#ff0';
+            statusSpan.textContent = '● Отправка...';
+            statusSpan.className = 'offline';
             
-            // Создаем URL для Telegram API
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(command)}`;
+            // Отправить через бота
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
             
-            // Используем iframe для обхода CORS
+            // Создать невидимый iframe для отправки (обход CORS)
             const iframe = document.createElement('iframe');
             iframe.style.display = 'none';
             iframe.src = url;
             document.body.appendChild(iframe);
             
-            // Через 1 секунду показываем успех
+            // Обновить статус
             setTimeout(() => {
-                status.textContent = '● Отправлено';
-                status.style.color = '#0f0';
-                
-                addMessage(`<strong>Система:</strong> Команда "${command}" отправлена в PyGame`, 'system');
+                statusSpan.textContent = '● В сети';
+                statusSpan.className = 'online';
                 
                 // Удалить iframe через 5 секунд
                 setTimeout(() => {
@@ -219,30 +272,45 @@
                         document.body.removeChild(iframe);
                     }
                 }, 5000);
-                
-                // Вернуть статус через 2 секунды
-                setTimeout(() => {
-                    status.textContent = '● Готов';
-                }, 2000);
-                
             }, 1000);
         }
         
+        // Симуляция ответов от робота
+        function simulateRobotResponse(command) {
+            const responses = {
+                'вперед': 'Двигаюсь вперед...',
+                'назад': 'Отступаю назад...',
+                'влево': 'Поворачиваю влево...',
+                'вправо': 'Поворачиваю вправо...',
+                'стоп': 'Все двигатели остановлены.'
+            };
+            
+            setTimeout(() => {
+                const response = responses[command] || `Выполняю: ${command}`;
+                addMessage(response, 'bot');
+            }, 1500);
+        }
+        
         // Обработка Enter
-        customCmd.addEventListener('keypress', (e) => {
+        messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                sendCustomCommand();
+                sendMessage();
             }
         });
         
         // Инициализация
         window.onload = function() {
-            customCmd.focus();
+            messageInput.focus();
             
-            // Стартовые сообщения
-            addMessage('<strong>Система:</strong> Центр управления запущен', 'system');
-            addMessage('<strong>Система:</strong> Используется PyGame бот для отправки команд', 'system');
-            addMessage('<strong>Система:</strong> Нажмите кнопку или введите команду', 'system');
+            // Приветственные сообщения
+            addMessage('Добро пожаловать в центр управления!', 'system');
+            addMessage('Используйте кнопки или вводите команды вручную', 'system');
+            addMessage('Все команды отправляются в игровой чат', 'system');
+            
+            // Симуляция подключения бота
+            setTimeout(() => {
+                addMessage('Бот PyGame подключен к чату', 'bot');
+            }, 1000);
         };
     </script>
 </body>
