@@ -7,32 +7,45 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <script>
-        function sendToTelegram() {
+         function sendToTelegram() {
             var input = document.getElementById('user-input');
             var log = document.getElementById('log');
             var text = input.value.trim();
             if (!text) return;
 
+            // 1. Отображаем команду в терминале на сайте
             var div = document.createElement('div');
             div.style.color = "#00f2ff";
-            div.innerHTML = '<span style="color:#fff">></span> ' + text;
+            div.innerHTML = '<span style="color:#fff">> SYSTEM_CMD:</span> ' + text.toUpperCase();
             log.appendChild(div);
             
-            input.value = "";
+            // 2. Настройки твоего бота
             var token = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
             var chat = "2078363462";
             var url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat + "&text=" + encodeURIComponent(text);
 
-            var img = new Image();
-            img.src = url;
+            // 3. Отправка через fetch (чтобы робот точно услышал)
+            fetch(url)
+                .then(response => {
+                    if(response.ok) {
+                        console.log("Команда ушла боту");
+                    }
+                })
+                .catch(err => {
+                    var errDiv = document.createElement('div');
+                    errDiv.style.color = "red";
+                    errDiv.innerText = "> ERROR: CONNECTION FAILED";
+                    log.appendChild(errDiv);
+                });
+
+            input.value = "";
             log.scrollTop = log.scrollHeight;
         }
 
-        // Запуск видео потока
+        // Остальные функции (initVideo и window.onload) оставь как были ниже
         function initVideo() {
             var video = document.getElementById('video');
             var videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
-            
             if (Hls.isSupported()) {
                 var hls = new Hls();
                 hls.loadSource(videoSrc);
@@ -90,3 +103,4 @@
     </div>
 </body>
 </html>
+
