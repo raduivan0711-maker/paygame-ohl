@@ -4,23 +4,90 @@
     <meta charset="UTF-8">
     <title>ROBOT CONTROL CENTER</title>
     <style>
-        body { margin: 0; background: #000; color: #00f2ff; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        header { height: 50px; border-bottom: 1px solid #00f2ff; display: flex; align-items: center; padding: 0 20px; background: #050505; }
-        .wrapper { display: flex; flex: 1; }
-        .sidebar { width: 350px; border-right: 1px solid #333; display: flex; flex-direction: column; background: #0a0a0a; }
-        #log { flex: 1; padding: 15px; font-family: monospace; overflow-y: auto; font-size: 13px; color: #00f2ff; }
-        .input-box { display: flex; border-top: 1px solid #333; padding: 10px; background: #000; }
-        input { flex: 1; background: #111; border: 1px solid #00f2ff; color: #fff; padding: 10px; outline: none; border-radius: 4px; }
-        button { background: #00f2ff; border: none; color: #000; padding: 0 20px; cursor: pointer; font-weight: bold; margin-left: 5px; border-radius: 4px; }
-        .main { flex: 1; display: flex; align-items: center; justify-content: center; background: #000; }
-        iframe { width: 95%; height: 90%; border: 1px solid #333; border-radius: 8px; }
+        body { 
+            margin: 0; 
+            background: #000; 
+            color: #00f2ff; 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+        header { 
+            height: 50px; 
+            border-bottom: 1px solid #00f2ff; 
+            display: flex; 
+            align-items: center; 
+            padding: 0 20px; 
+            background: #050505; 
+        }
+        .wrapper { 
+            display: flex; 
+            flex: 1; 
+            overflow: hidden;
+        }
+        .sidebar { 
+            width: 350px; 
+            border-right: 1px solid #333; 
+            display: flex; 
+            flex-direction: column; 
+            background: #0a0a0a; 
+        }
+        #log { 
+            flex: 1; 
+            padding: 15px; 
+            font-family: monospace; 
+            overflow-y: auto; 
+            font-size: 13px; 
+            color: #00f2ff; 
+        }
+        .input-box { 
+            display: flex; 
+            border-top: 1px solid #333; 
+            padding: 10px; 
+            background: #000; 
+        }
+        input { 
+            flex: 1; 
+            background: #111; 
+            border: 1px solid #00f2ff; 
+            color: #fff; 
+            padding: 10px; 
+            outline: none; 
+            border-radius: 4px; 
+        }
+        button { 
+            background: #00f2ff; 
+            border: none; 
+            color: #000; 
+            padding: 0 20px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-left: 5px; 
+            border-radius: 4px; 
+        }
+        .main { 
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            background: #000; 
+            overflow: hidden;
+        }
+        iframe { 
+            width: 95%; 
+            height: 90%; 
+            border: 1px solid #333; 
+            border-radius: 8px; 
+        }
     </style>
 </head>
 <body>
     <header>ROBOT_OS // CONTROL_PANEL</header>
     <div class="wrapper">
         <div class="sidebar">
-            <div id="log">Система робота...</div>
+            <div id="log">Система робота готова к работе...</div>
         </div>
         <div class="main">
             <div style="color: #333;">[ ТУТ БУДЕТ ТВОЯ ТРАНСЛЯЦИЯ ]</div>
@@ -28,47 +95,79 @@
     </div>
     <div class="input-box">
         <input type="text" id="cmd" placeholder="вперед, назад, влево, вправо..." autocomplete="off">
-        <button onclick="send()">SEND</button>
+        <button id="sendBtn">SEND</button>
     </div>
 
     <script>
+        // Инициализация элементов
         const log = document.getElementById('log');
         const input = document.getElementById('cmd');
-        const token = "8577616143:AAElhySaMguA6IritcG7p3UE5Qvdsk3hJY"; // Используйте правильный токен
+        const sendBtn = document.getElementById('sendBtn');
+        
+        // Конфигурация Telegram бота (замените на свои данные)
+        const token = "8577616143:AAElhySaMguA6IritcG7p3UE5Qvdsk3hJY";
         const chat_id = "-5063173925";
 
-        function send() {
+        // Функция отправки команды
+        function sendCommand() {
             const text = input.value.trim().toLowerCase();
             if (!text) return;
 
-            const url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + encodeURIComponent(text);
+            // Добавляем команду в лог
+            const logEntry = document.createElement('div');
+            logEntry.textContent = "> " + text.toUpperCase();
+            log.appendChild(logEntry);
+            
+            // Очищаем поле ввода
+            input.value = "";
+            
+            // Прокручиваем лог вниз
+            log.scrollTop = log.scrollHeight;
+
+            // Отправляем команду в Telegram
+            const url = "https://api.telegram.org/bot" + token + 
+                       "/sendMessage?chat_id=" + chat_id + 
+                       "&text=" + encodeURIComponent(text);
 
             fetch(url)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Ошибка сети');
+                        throw new Error('Ошибка отправки команды');
                     }
-                    return response;
+                    return response.json();
                 })
-                .then(() => {
-                    const d = document.createElement('div');
-                    d.textContent = "> " + text.toUpperCase();
-                    log.appendChild(d);
-                    log.scrollTop = log.scrollHeight;
-                    input.value = ""; // Очищаем поле после успешной отправки
+                .then(data => {
+                    // Команда успешно отправлена
+                    logEntry.style.color = "#00ff00";
+                    logEntry.textContent += " ✓";
                 })
                 .catch(error => {
                     console.error('Ошибка:', error);
-                    const d = document.createElement('div');
-                    d.textContent = "> ОШИБКА: " + error.message;
-                    d.style.color = "#ff4444";
-                    log.appendChild(d);
+                    logEntry.style.color = "#ff4444";
+                    logEntry.textContent += " ✗ Ошибка";
+                    
+                    // Показываем детали ошибки
+                    const errorEntry = document.createElement('div');
+                    errorEntry.textContent = "  " + error.message;
+                    errorEntry.style.color = "#ff8888";
+                    errorEntry.style.fontSize = "11px";
+                    log.appendChild(errorEntry);
                 });
         }
 
-        input.onkeydown = function(e) {
-            if (e.key === 'Enter') send();
-        };
+        // Назначаем обработчики событий
+        sendBtn.addEventListener('click', sendCommand);
+        
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                sendCommand();
+            }
+        });
+
+        // Фокус на поле ввода при загрузке
+        window.addEventListener('load', function() {
+            input.focus();
+        });
     </script>
 </body>
 </html>
