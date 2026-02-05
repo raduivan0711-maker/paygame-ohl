@@ -3,166 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot Control Center</title>
+    <title>Robot Control</title>
     <style>
-        /* Общие настройки */
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; background: #000; color: #00ffff; font-family: 'Courier New', monospace; overflow: hidden; }
+        /* ОБНУЛЕНИЕ СТИЛЕЙ */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        /* Сетка: Экран делится на две части */
-        .container { display: flex; height: 100vh; width: 100vw; }
-
-        /* ЛЕВАЯ ЧАСТЬ (ЧАТ) - 30% ширины */
-        .sidebar { 
-            width: 30%; 
-            min-width: 300px;
-            border-right: 2px solid #00ffff; 
-            display: flex; 
-            flex-direction: column; 
-            background: #0a0a0a; 
-            box-shadow: 10px 0 20px rgba(0, 255, 255, 0.1);
-            z-index: 10;
+        body { 
+            background-color: #000; 
+            color: #00ff00; 
+            font-family: 'Courier New', monospace; 
+            overflow: hidden; 
+            height: 100vh; 
+            width: 100vw;
         }
-        
-        .header { padding: 20px; border-bottom: 1px solid #333; text-align: center; font-weight: bold; letter-spacing: 2px; background: #111; }
-        
-        #log { 
-            flex: 1; 
-            padding: 15px; 
-            overflow-y: auto; 
-            background: #000; 
-            color: #ccc; 
-            font-size: 14px; 
+
+        /* ГЛАВНЫЙ КОНТЕЙНЕР (СЕТКА) */
+        .main-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ЛЕВАЯ ПАНЕЛЬ (ЧАТ) - 30% */
+        .chat-panel {
+            width: 30%;
+            min-width: 320px;
+            background: #0d0d0d;
+            border-right: 2px solid #00ff00;
+            display: flex;
+            flex-direction: column;
+            z-index: 2;
+        }
+
+        .chat-header {
+            padding: 20px;
+            text-align: center;
             border-bottom: 1px solid #333;
+            font-weight: bold;
+            background: #111;
+            letter-spacing: 1px;
         }
 
-        .input-area { padding: 20px; background: #111; display: flex; gap: 10px; }
-        
-        input { 
-            flex: 1; 
-            background: #222; 
-            border: 1px solid #00ffff; 
-            color: #00ffff; 
-            padding: 12px; 
-            outline: none; 
-            font-family: 'Courier New', monospace;
+        #chat-log {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            color: #ccc;
+            font-size: 14px;
         }
-        
-        button { 
-            background: #00ffff; 
-            color: #000; 
-            border: none; 
-            padding: 10px 20px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.2s;
-        }
-        button:hover { background: #fff; box-shadow: 0 0 15px #00ffff; }
 
-        /* ПРАВАЯ ЧАСТЬ (ВИДЕО) - 70% ширины */
-        .video-main { 
-            flex: 1; 
-            background: #000; 
-            position: relative; 
+        .controls {
+            padding: 20px;
+            border-top: 1px solid #333;
+            background: #111;
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            background: #222;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            outline: none;
+            font-family: inherit;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #fff; }
+
+        /* ПРАВАЯ ПАНЕЛЬ (ВИДЕО) - 70% */
+        .video-panel {
+            flex: 1;
+            background: #000;
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
-        video { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; /* Видео заполняет весь экран красиво */
-        }
-        
-        /* Сообщение поверх видео */
-        .overlay {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border: 1px solid #00ffff;
-            color: #00ffff;
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="sidebar">
-        <div class="header">COMMAND TERMINAL</div>
+<div class="main-layout">
+    <div class="chat-panel">
+        <div class="chat-header">TERMINAL @PYGAME_BOT</div>
         
-        <div id="log">
-            <div style="color: #00ff00;">[SYSTEM] Connection established...</div>
-            <div style="color: #888;">Ожидание ввода...</div>
+        <div id="chat-log">
+            <div style="color: #00ff00;">[SYSTEM] Online...</div>
+            <div>Ожидание команды...</div>
         </div>
-        
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Введите команду..." onkeydown="handleEnter(event)">
-            <button onclick="sendToTelegram()">SEND</button>
+
+        <div class="controls">
+            <input type="text" id="cmdInput" placeholder="Команда..." onkeydown="checkKey(event)">
+            <button onclick="sendMsg()">SEND</button>
         </div>
     </div>
 
-    <div class="video-main">
-        <div class="overlay">LIVE FEED: CAM_01</div>
+    <div class="video-panel">
         <video autoplay muted loop playsinline>
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-monitor-close-up-1728-large.mp4" type="video/mp4">
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-mechanical-arm-working-in-factory-1165-large.mp4" type="video/mp4">
         </video>
     </div>
 </div>
 
 <script>
-    // НАСТРОЙКИ БОТА
-    const TOKEN = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
-    const CHAT_ID = "2078363462"; 
+    // --- НАСТРОЙКИ ---
+    const BOT_TOKEN = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
+    const USER_ID = "2078363462"; 
 
-    // Функция обработки нажатия Enter
-    function handleEnter(event) {
-        if (event.key === 'Enter') {
-            sendToTelegram();
-        }
+    // Функция проверки нажатия Enter
+    function checkKey(e) {
+        if (e.key === 'Enter') sendMsg();
     }
 
-    // ГЛАВНАЯ ФУНКЦИЯ ОТПРАВКИ
-    function sendToTelegram() {
-        const input = document.getElementById('user-input');
-        const log = document.getElementById('log');
-        const message = input.value.trim();
-if (message === "") return; // Не отправлять пустоту
+    // Главная функция отправки
+    function sendMsg() {
+        const inp = document.getElementById('cmdInput');
+        const log = document.getElementById('chat-log');
+        const txt = inp.value.trim();
 
-        // 1. Показываем сообщение в логе сайта
-        const userLine = document.createElement('div');
-        userLine.innerHTML = <span style="color: #00ffff;">> YOU:</span> ${message};
-        log.appendChild(userLine);
-        
-        // Автопрокрутка вниз
+        if (txt === "") return;
+
+        // 1. Показываем в чате
+        const line = document.createElement('div');
+        line.innerHTML = <span style="color: #00ff00;">></span> ${txt};
+        log.appendChild(line);
         log.scrollTop = log.scrollHeight;
-
-        // 2. Отправляем в Telegram
-        const url = https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)};
-
+// 2. Шлем в Телеграм
+        const url = https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${USER_ID}&text=${encodeURIComponent(txt)};
+        
         fetch(url)
-            .then(response => {
-                if (response.ok) {
-                    console.log("Успешно отправлено: " + message);
-                } else {
-                    const errorLine = document.createElement('div');
-                    errorLine.style.color = "red";
-                    errorLine.textContent = "[ERROR] Ошибка сервера Telegram";
-                    log.appendChild(errorLine);
-                }
+            .then(r => {
+                if(r.ok) console.log("Отправлено!");
+                else console.log("Ошибка сервера");
             })
-            .catch(error => {
-                const errorLine = document.createElement('div');
-                errorLine.style.color = "red";
-                errorLine.textContent = "[ERROR] Нет интернета или блокировка";
-                log.appendChild(errorLine);
-                console.error(error);
-            });
+            .catch(e => console.error("Ошибка сети"));
 
-        // Очищаем поле ввода
-        input.value = "";
+        inp.value = "";
     }
 </script>
 
