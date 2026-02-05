@@ -5,29 +5,27 @@
     <title>Управление роботом</title>
     <style>
         body {
-            background: #111;
+            background: #000;
             color: #0ff;
-            font-family: 'Courier New', monospace;
+            font-family: monospace;
             padding: 20px;
-            text-align: center;
         }
         
-        .control-pad {
+        .controls {
             display: grid;
-            grid-template-columns: repeat(3, 100px);
-            gap: 10px;
+            grid-template-columns: repeat(3, 80px);
+            gap: 5px;
             justify-content: center;
-            margin: 30px auto;
+            margin: 20px auto;
         }
         
         .btn {
             padding: 20px;
-            font-size: 20px;
+            font-size: 24px;
             background: #002;
             border: 2px solid #0ff;
             color: #0ff;
             cursor: pointer;
-            transition: all 0.3s;
         }
         
         .btn:hover {
@@ -35,154 +33,89 @@
             color: #000;
         }
         
-        .btn-up { grid-column: 2; }
-        .btn-left { grid-column: 1; grid-row: 2; }
-        .btn-center { 
-            grid-column: 2; 
-            grid-row: 2; 
+        #up { grid-column: 2; }
+        #left { grid-column: 1; grid-row: 2; }
+        #center { 
+            grid-column: 2; grid-row: 2; 
             background: #200;
             border-color: #f00;
         }
-        .btn-right { grid-column: 3; grid-row: 2; }
-        .btn-down { grid-column: 2; grid-row: 3; }
-        
-        .custom-cmd {
-            margin: 20px;
-        }
-        
-        input {
-            padding: 10px;
-            background: #000;
-            border: 1px solid #0ff;
-            color: #fff;
-            width: 200px;
-        }
-        
-        .status {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #0ff;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-            text-align: left;
-        }
+        #right { grid-column: 3; grid-row: 2; }
+        #down { grid-column: 2; grid-row: 3; }
     </style>
 </head>
 <body>
     <h1>🤖 Управление PyGame роботом</h1>
-    <p>Нажимайте кнопки - робот должен двигаться в окне PyGame</p>
     
-    <div class="control-pad">
-        <button class="btn btn-up" onclick="sendCommand('вперед')">↑</button>
-        <button class="btn btn-left" onclick="sendCommand('влево')">←</button>
-        <button class="btn btn-center" onclick="sendCommand('стоп')">⏹</button>
-        <button class="btn btn-right" onclick="sendCommand('вправо')">→</button>
-        <button class="btn btn-down" onclick="sendCommand('назад')">↓</button>
+    <div class="controls">
+        <button id="up" onclick="sendViaLink('вперед')">↑</button>
+        <button id="left" onclick="sendViaLink('влево')">←</button>
+        <button id="center" onclick="sendViaLink('стоп')">⏹</button>
+        <button id="right" onclick="sendViaLink('вправо')">→</button>
+        <button id="down" onclick="sendViaLink('назад')">↓</button>
     </div>
     
-    <div class="custom-cmd">
-        <input type="text" id="cmdInput" placeholder="ваша команда">
-        <button class="btn" onclick="sendCustom()">Отправить</button>
-    </div>
-    
-    <div class="status" id="status">
-        <h3>📋 Статус:</h3>
-        <div id="log">Ожидание команд...</div>
-    </div>
-    
+    <p>Статус: <span id="status">Готов</span></p>
+
     <script>
-        const BOT_TOKEN = "7208925888:AAEMIL5YKKlKw_xQSZoRB9gabaAvm2T0weQ";
-        const CHAT_ID = "-5063173925";
-        
-        function log(message) {
-            const logDiv = document.getElementById('log');
-            const time = new Date().toLocaleTimeString();
-            logDiv.innerHTML = `[${time}] ${message}<br>` + logDiv.innerHTML;
-        }
-        
-        function sendCommand(command) {
-            log(`Отправка: <strong>${command}</strong>`);
+        // Метод 1: Создаем ссылку и симулируем клик
+        function sendViaLink(command) {
+            document.getElementById('status').textContent = 'Отправка...';
+            document.getElementById('status').style.color = '#ff0';
             
-            // Создаем изображение для отправки GET запроса
-            const img = new Image();
+            const url = `https://api.telegram.org/bot7208925888:AAEMIL5YKKlKw_xQSZoRB9gabaAvm2T0weQ/sendMessage?chat_id=5063173925&text=${encodeURIComponent(command)}`;
             
-            // Формируем URL для Telegram API
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(command)}`;
+            // Создаем временную ссылку и кликаем по ней
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';  // Открываем в новой вкладке
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
             
-            console.log("Отправка на URL:", url);
-            
-            // Отправляем через Image (GET запрос без CORS проблем)
-            img.onload = function() {
-                log(`✅ Команда "${command}" отправлена успешно!`);
-                console.log("Команда отправлена");
-            };
-            
-            img.onerror = function() {
-                log(`❌ Ошибка отправки команды "${command}"`);
-                console.log("Ошибка отправки");
+            // Обновляем статус
+            setTimeout(() => {
+                document.getElementById('status').textContent = `Команда "${command}" отправлена`;
+                document.getElementById('status').style.color = '#0f0';
                 
-                // Попробуем альтернативный метод
-                sendCommandAlt(command);
-            };
+                // Через 2 секунды возвращаем статус
+                setTimeout(() => {
+                    document.getElementById('status').textContent = 'Готов';
+                    document.getElementById('status').style.color = '#0ff';
+                }, 2000);
+            }, 500);
             
-            img.src = url;
+            console.log(`Отправлено: ${command}`);
         }
         
-        // Альтернативный метод отправки
-        function sendCommandAlt(command) {
-            log(`Пробуем альтернативный метод для: ${command}`);
+        // Метод 2: Используем window.open (работает лучше)
+        function sendCommand(command) {
+            const url = `https://api.telegram.org/bot7208925888:AAEMIL5YKKlKw_xQSZoRB9gabaAvm2T0weQ/sendMessage?chat_id=5063173925&text=${encodeURIComponent(command)}`;
             
-            // Используем fetch с no-cors
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(command)}`, {
-                mode: 'no-cors'
-            })
-            .then(() => {
-                log(`✅ (alt) Команда "${command}" отправлена`);
-            })
-            .catch(e => {
-                log(`❌ Все методы не сработали: ${e.message}`);
-            });
-        }
-        
-        function sendCustom() {
-            const cmd = document.getElementById('cmdInput').value.trim();
-            if (cmd) {
-                sendCommand(cmd);
-                document.getElementById('cmdInput').value = '';
+            // Открываем в маленьком окне (почти незаметно)
+            const newWindow = window.open(url, '_blank', 'width=100,height=100,left=9999,top=9999');
+            
+            // Закрываем окно через секунду
+            if (newWindow) {
+                setTimeout(() => {
+                    newWindow.close();
+                }, 1000);
             }
+            
+            alert(`Команда "${command}" отправлена!`);
         }
         
         // Горячие клавиши
         document.addEventListener('keydown', function(e) {
             switch(e.key) {
-                case 'ArrowUp': 
-                    sendCommand('вперед');
-                    e.preventDefault();
-                    break;
-                case 'ArrowDown': 
-                    sendCommand('назад');
-                    e.preventDefault();
-                    break;
-                case 'ArrowLeft': 
-                    sendCommand('влево');
-                    e.preventDefault();
-                    break;
-                case 'ArrowRight': 
-                    sendCommand('вправо');
-                    e.preventDefault();
-                    break;
-                case ' ': 
-                    sendCommand('стоп');
-                    e.preventDefault();
-                    break;
+                case 'ArrowUp': sendViaLink('вперед'); break;
+                case 'ArrowDown': sendViaLink('назад'); break;
+                case 'ArrowLeft': sendViaLink('влево'); break;
+                case 'ArrowRight': sendViaLink('вправо'); break;
+                case ' ': sendViaLink('стоп'); break;
             }
         });
-        
-        // Фокус на поле ввода
-        document.getElementById('cmdInput').focus();
-        
-        log("Система готова. Используйте кнопки или стрелки клавиатуры.");
     </script>
 </body>
 </html>
