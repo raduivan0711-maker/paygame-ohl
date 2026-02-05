@@ -31,32 +31,35 @@
         </div>
     </div>
 
-    <script>
-        const log = document.getElementById('log');
-        const input = document.getElementById('cmd');
+  <script>
+    const log = document.getElementById('log');
+    const input = document.getElementById('cmd');
 
-        function send() {
-            const text = input.value.trim().toLowerCase();
-            if (!text) return;
+    function send() {
+        const text = input.value.trim().toLowerCase();
+        if (!text) return;
 
-            // ДАННЫЕ ТВОЕГО ПЕРВОГО БОТА (ПРИЕМ)
-            const token = "8577616143:AAElhySaMgauA6IritcG7p3UE5Qvdsk3hJY";
-            const chat_id = "-5063173925"; 
+        const token = "8577616143:AAElhySaMgauA6IritcG7p3UE5Qvdsk3hJY";
+        const chat_id = "-5063173925";
 
-            const url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + encodeURIComponent(text);
+        // Собираем ссылку через обычные плюсы, чтобы не было ошибок
+        const url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + encodeURIComponent(text);
 
-            fetch(url).then(() => {
-                const d = document.createElement('div');
-                d.innerHTML = <span style="color:#666">></span> ${text.toUpperCase()};
-                log.appendChild(d);
-                log.scrollTop = log.scrollHeight;
-            });
+        fetch(url).then(function() {
+            const d = document.createElement('div');
+            d.textContent = "> " + text.toUpperCase(); // Безопасный вывод текста
+            log.appendChild(d);
+            log.scrollTop = log.scrollHeight;
+        });
 
-            input.value = "";
-        }
+        input.value = "";
+    }
 
-        input.onkeydown = (e) => { if(e.keyCode === 13) send(); };
-    </script>
+    input.onkeydown = function(e) { 
+        if (e.keyCode === 13) send(); 
+    };
+</script>
 </body>
 </html>
+
 
