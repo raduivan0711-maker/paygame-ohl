@@ -2,11 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>PYGAME | COMMAND CENTER</title>
+    <title>PYGAME | SPACE COMMAND</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     
     <script>
-        // Переносим функцию в самый верх, чтобы она была доступна сразу
         function sendToTelegram() {
             var input = document.getElementById('user-input');
             var log = document.getElementById('log');
@@ -14,16 +14,14 @@
 
             if (!text) return;
 
-            // Вывод в терминал на сайте
             var div = document.createElement('div');
             div.style.color = "#00f2ff";
-            div.innerHTML = '> ' + text;
+            div.style.marginBottom = "5px";
+            div.innerHTML = '<span style="color:#fff">></span> ' + text;
             log.appendChild(div);
             
-            // Очистка поля
             input.value = "";
 
-            // Отправка в бот (метод невидимой картинки - самый надежный)
             var token = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
             var chat = "2078363462";
             var url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat + "&text=" + encodeURIComponent(text);
@@ -31,11 +29,9 @@
             var img = new Image();
             img.src = url;
 
-            // Прокрутка лога вниз
             log.scrollTop = log.scrollHeight;
         }
 
-        // Часы
         setInterval(function() { 
             var clock = document.getElementById('clock');
             if(clock) clock.innerText = new Date().toLocaleTimeString(); 
@@ -49,29 +45,38 @@
         .wrapper { display: flex; height: calc(100vh - 60px); }
         .sidebar { flex: 1; border-right: 1px solid rgba(0,242,255,0.1); padding: 20px; display: flex; flex-direction: column; background: #050505; min-width: 320px; }
         .terminal-box { flex: 1; background: #000; border: 1px solid rgba(0,242,255,0.2); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
-        #log { flex: 1; padding: 15px; font-family: 'JetBrains Mono'; font-size: 14px; overflow-y: auto; }
+        #log { flex: 1; padding: 15px; font-family: 'JetBrains Mono'; font-size: 13px; overflow-y: auto; }
         .input-area { display: flex; border-top: 1px solid rgba(0,242,255,0.2); background: #0a0a0a; height: 60px; }
         #user-input { flex: 1; background: transparent; border: none; color: var(--neon); padding: 0 15px; font-family: 'JetBrains Mono'; outline: none; font-size: 16px; }
-        #send-btn { background: var(--neon); color: #000; border: none; padding: 0 35px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; font-size: 14px; }
-        .main { flex: 2; display: flex; align-items: center; justify-content: center; background: #080808; font-size: 10px; opacity: 0.3; }
+        #send-btn { background: var(--neon); color: #000; border: none; padding: 0 30px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; }
+        .main { flex: 2; display: flex; align-items: center; justify-content: center; background: #080808; }
+        .video-container { width: 92%; height: 85%; border: 1px solid rgba(0,242,255,0.3); border-radius: 10px; overflow: hidden; }
+        .video-js { width: 100% !important; height: 100% !important; }
     </style>
 </head>
 <body>
     <header class="top-header">
-        <div>PYGAME_OS // @Pygame_01_bot</div>
+        <div>PYGAME_OS // SPACE_COMMAND</div>
         <div id="clock">00:00:00</div>
     </header>
     <div class="wrapper">
         <div class="sidebar">
             <div class="terminal-box">
-                <div id="log"><div>> System Online. Ready for input.</div></div>
+                <div id="log"><div>> Connection established. Space feed online.</div></div>
                 <div class="input-area">
                     <input type="text" id="user-input" placeholder="Введите команду..." onkeydown="if(event.keyCode==13) sendToTelegram()">
                     <button id="send-btn" onclick="sendToTelegram()">SEND</button>
                 </div>
             </div>
         </div>
-        <div class="main">SYSTEM_STANDBY</div>
+        <div class="main">
+            <div class="video-container">
+<video id="my-video" class="video-js vjs-big-play-centered" controls autoplay muted loop preload="auto">
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-deep-space-34533-large.mp4" type="video/mp4">
+                </video>
+            </div>
+        </div>
     </div>
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 </body>
 </html>
