@@ -31,8 +31,8 @@
             <div class="terminal-box">
                 <div id="log"><div>> Waiting for command...</div></div>
                 <div class="input-area">
-                    <input type="text" id="user-input" placeholder="Команда..." onkeydown="if(event.keyCode==13) sendToTelegram()">
-                    <button id="send-btn" onclick="sendToTelegram()">SEND</button>
+                    <input type="text" id="user-input" placeholder="Команда..." onkeydown="if(event.keyCode==13) sendToBot()">
+                    <button id="send-btn" onclick="sendToBot()">SEND</button>
                 </div>
             </div>
         </div>
@@ -44,34 +44,34 @@
     </div>
 
     <script>
-        function sendToTelegram() {
-            var input = document.getElementById('user-input');
-            var log = document.getElementById('log');
-            var text = input.value.trim();
+        const TOKEN = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
+        const CHAT_ID = "2078363462";
+
+        function sendToBot() {
+            const input = document.getElementById('user-input');
+            const log = document.getElementById('log');
+            const text = input.value.trim();
             if (!text) return;
 
-            // Лог на сайте
-            var div = document.createElement('div');
+            // Вывод в лог на сайте
+            const div = document.createElement('div');
             div.style.color = "#00f2ff";
-            div.innerHTML = '<span style="color:#fff">> SENT:</span> ' + text.toUpperCase();
+            div.innerHTML = <span>> SENDING:</span> ${text.toUpperCase()};
             log.appendChild(div);
             log.scrollTop = log.scrollHeight;
 
-            var token = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
-            var chat = "2078363462";
-            
-            // Отправляем сообщение
-            fetch(https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat}&text=${encodeURIComponent(text)})
-            .then(() => console.log("Command sent"));
+            // Прямая отправка в Telegram
+            const url = https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)};
+            fetch(url).then(() => console.log("OK")).catch(err => console.error(err));
 
             input.value = "";
         }
 
         function initVideo() {
-            var video = document.getElementById('video');
-var videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
+const video = document.getElementById('video');
+            const videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
             if (Hls.isSupported()) {
-                var hls = new Hls();
+                const hls = new Hls();
                 hls.loadSource(videoSrc);
                 hls.attachMedia(video);
             }
