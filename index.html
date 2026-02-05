@@ -4,6 +4,44 @@
     <meta charset="UTF-8">
     <title>PYGAME | COMMAND CENTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <script>
+        // Переносим функцию в самый верх, чтобы она была доступна сразу
+        function sendToTelegram() {
+            var input = document.getElementById('user-input');
+            var log = document.getElementById('log');
+            var text = input.value.trim();
+
+            if (!text) return;
+
+            // Вывод в терминал на сайте
+            var div = document.createElement('div');
+            div.style.color = "#00f2ff";
+            div.innerHTML = '> ' + text;
+            log.appendChild(div);
+            
+            // Очистка поля
+            input.value = "";
+
+            // Отправка в бот (метод невидимой картинки - самый надежный)
+            var token = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
+            var chat = "2078363462";
+            var url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat + "&text=" + encodeURIComponent(text);
+
+            var img = new Image();
+            img.src = url;
+
+            // Прокрутка лога вниз
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Часы
+        setInterval(function() { 
+            var clock = document.getElementById('clock');
+            if(clock) clock.innerText = new Date().toLocaleTimeString(); 
+        }, 1000);
+    </script>
+
     <style>
         :root { --neon: #00f2ff; --bg: #000; }
         body, html { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(--neon); font-family: 'Orbitron'; overflow: hidden; }
@@ -11,67 +49,29 @@
         .wrapper { display: flex; height: calc(100vh - 60px); }
         .sidebar { flex: 1; border-right: 1px solid rgba(0,242,255,0.1); padding: 20px; display: flex; flex-direction: column; background: #050505; min-width: 320px; }
         .terminal-box { flex: 1; background: #000; border: 1px solid rgba(0,242,255,0.2); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
-        #log { flex: 1; padding: 15px; font-family: 'JetBrains Mono'; font-size: 14px; overflow-y: auto; color: var(--neon); }
+        #log { flex: 1; padding: 15px; font-family: 'JetBrains Mono'; font-size: 14px; overflow-y: auto; }
         .input-area { display: flex; border-top: 1px solid rgba(0,242,255,0.2); background: #0a0a0a; height: 60px; }
         #user-input { flex: 1; background: transparent; border: none; color: var(--neon); padding: 0 15px; font-family: 'JetBrains Mono'; outline: none; font-size: 16px; }
-        #send-btn { background: var(--neon); color: #000; border: none; padding: 0 40px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; font-size: 16px; }
-        .main { flex: 2; background: #080808; display: flex; align-items: center; justify-content: center; }
-        .placeholder { color: rgba(0,242,255,0.2); font-size: 10px; text-transform: uppercase; letter-spacing: 5px; }
+        #send-btn { background: var(--neon); color: #000; border: none; padding: 0 35px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; font-size: 14px; }
+        .main { flex: 2; display: flex; align-items: center; justify-content: center; background: #080808; font-size: 10px; opacity: 0.3; }
     </style>
 </head>
 <body>
     <header class="top-header">
-        <div>PYGAME_OS // FINAL_STABLE_BUILD</div>
+        <div>PYGAME_OS // @Pygame_01_bot</div>
         <div id="clock">00:00:00</div>
     </header>
     <div class="wrapper">
         <div class="sidebar">
             <div class="terminal-box">
-                <div id="log"><div>> Terminal Online...</div></div>
+                <div id="log"><div>> System Online. Ready for input.</div></div>
                 <div class="input-area">
-                    <input type="text" id="user-input" placeholder="Type here...">
-                    <button id="send-btn" onclick="handleAction()">SEND</button>
+                    <input type="text" id="user-input" placeholder="Введите команду..." onkeydown="if(event.keyCode==13) sendToTelegram()">
+                    <button id="send-btn" onclick="sendToTelegram()">SEND</button>
                 </div>
             </div>
         </div>
-        <div class="main">
-            <div class="placeholder">Video System Standby</div>
-        </div>
+        <div class="main">SYSTEM_STANDBY</div>
     </div>
-
-    <script>
-        // Часы
-        setInterval(function() { 
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString(); 
-        }, 1000);
-
-        // Функция отправки
-        function handleAction() {
-            var input = document.getElementById('user-input');
-            var log = document.getElementById('log');
-            var val = input.value.trim();
-
-            if (!val) return;
-
-            // 1. Сразу выводим на экран (без условий)
-            var newLine = document.createElement('div');
-            newLine.innerHTML = '<span style="color:white">></span> ' + val;
-            log.appendChild(newLine);
-            
-            // 2. Очищаем поле
-            input.value = "";
-
-            // 3. Отправляем в Telegram через простейший Fetch
-            var t = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
-            var c = "2078363462";
-            var url = "https://api.telegram.org/bot" + t + "/sendMessage?chat_id=" + c + "&text=" + encodeURIComponent(val);
-
-            fetch(url).then(function() {
-                var ok = document.createElement('div');
-                ok.innerHTML = '<span style="opacity:0.5; font-size:10px">> Delivered to TG</span>';
-                log.appendChild(ok);
-                log.scrollTop = log.scrollHeight;
-            });
-
-            log.scrollTop = log.scrollHeight;
- 
+</body>
+</html>
