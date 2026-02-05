@@ -2,9 +2,55 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>ROBOT COMMAND CENTER</title>
+    <title>PYGAME | COMMAND CENTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <script>
+        function sendToTelegram() {
+            var input = document.getElementById('user-input');
+            var log = document.getElementById('log');
+            var text = input.value.trim();
+            if (!text) return;
+
+            var div = document.createElement('div');
+            div.style.color = "#00f2ff";
+            div.innerHTML = '<span style="color:#fff">></span> ' + text;
+            log.appendChild(div);
+            
+            input.value = "";
+            var token = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
+            var chat = "2078363462";
+            var url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat + "&text=" + encodeURIComponent(text);
+
+            var img = new Image();
+            img.src = url;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Запуск видео потока
+        function initVideo() {
+            var video = document.getElementById('video');
+            var videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
+            
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(videoSrc);
+                hls.attachMedia(video);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSrc;
+            }
+        }
+
+        window.onload = function() {
+            initVideo();
+            setInterval(function() { 
+                var clock = document.getElementById('clock');
+                if(clock) clock.innerText = new Date().toLocaleTimeString(); 
+            }, 1000);
+        };
+    </script>
+
     <style>
         :root { --neon: #00f2ff; --bg: #000; }
         body, html { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(--neon); font-family: 'Orbitron'; overflow: hidden; }
@@ -12,10 +58,10 @@
         .wrapper { display: flex; height: calc(100vh - 60px); }
         .sidebar { flex: 1; border-right: 1px solid rgba(0,242,255,0.1); padding: 20px; display: flex; flex-direction: column; background: #050505; min-width: 320px; }
         .terminal-box { flex: 1; background: #000; border: 1px solid rgba(0,242,255,0.2); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
-        #log { flex: 1; padding: 15px; font-family: 'JetBrains Mono'; font-size: 13px; overflow-y: auto; color: var(--neon); }
+        #log { flex: 1; padding: 15px; font-family: 'JetBrains Mono'; font-size: 13px; overflow-y: auto; }
         .input-area { display: flex; border-top: 1px solid rgba(0,242,255,0.2); background: #0a0a0a; height: 60px; }
-        #user-input { flex: 1; background: transparent; border: none; color: var(--neon); padding: 0 15px; outline: none; font-size: 16px; }
-        #send-btn { background: var(--neon); color: #000; border: none; padding: 0 30px; cursor: pointer; font-weight: bold; }
+        #user-input { flex: 1; background: transparent; border: none; color: var(--neon); padding: 0 15px; font-family: 'JetBrains Mono'; outline: none; font-size: 16px; }
+        #send-btn { background: var(--neon); color: #000; border: none; padding: 0 30px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; }
         .main { flex: 2; display: flex; align-items: center; justify-content: center; background: #080808; }
         .video-container { width: 92%; height: 85%; border: 1px solid rgba(0,242,255,0.3); border-radius: 10px; overflow: hidden; background: #000; }
         video { width: 100%; height: 100%; object-fit: contain; }
@@ -23,16 +69,16 @@
 </head>
 <body>
     <header class="top-header">
-        <div>PYGAME_OS // ACTIVE_STREAM</div>
-        <div id="clock">00:00:00</div>
+        <div>PYGAME_OS // STREAM_READY</div>
+<div id="clock">00:00:00</div>
     </header>
     <div class="wrapper">
         <div class="sidebar">
             <div class="terminal-box">
-                <div id="log"><div>> Terminal ready...</div></div>
+                <div id="log"><div>> Waiting for command...</div></div>
                 <div class="input-area">
-                    <input type="text" id="user-input" placeholder="Команда..." onkeydown="if(event.keyCode==13) sendToBot()">
-                    <button id="send-btn" onclick="sendToBot()">SEND</button>
+                    <input type="text" id="user-input" placeholder="Команда..." onkeydown="if(event.keyCode==13) sendToTelegram()">
+                    <button id="send-btn" onclick="sendToTelegram()">SEND</button>
                 </div>
             </div>
         </div>
@@ -42,43 +88,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        function sendToBot() {
-            var input = document.getElementById('user-input');
-            var log = document.getElementById('log');
-            var text = input.value.trim();
-            if (!text) return;
-
-            var div = document.createElement('div');
-            div.innerHTML = '<span style="color:#fff">> COMMAND:</span> ' + text.toUpperCase();
-            log.appendChild(div);
-            
-            var token = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
-            var chat = "2078363462";
-            
-            // Отправляем команду напрямую боту
-            fetch(https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat}&text=${encodeURIComponent(text)});
-
-            input.value = "";
-            log.scrollTop = log.scrollHeight;
-        }
-
-        function initVideo() {
-            var video = document.getElementById('video');
-            var videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
-            if (Hls.isSupported()) {
-                var hls = new Hls();
-                hls.loadSource(videoSrc);
-                hls.attachMedia(video);
-            }
-        }
-window.onload = function() {
-            initVideo();
-            setInterval(function() { 
-                document.getElementById('clock').innerText = new Date().toLocaleTimeString(); 
-            }, 1000);
-        };
-    </script>
 </body>
 </html>
