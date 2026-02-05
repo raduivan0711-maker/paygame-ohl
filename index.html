@@ -1,56 +1,170 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Мой Робот</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Control Center</title>
     <style>
-        body { background: #1a1a1a; color: white; text-align: center; font-family: sans-serif; }
-        /* Видео будет сверху, как в обычном плеере */
-        .video-section { width: 100%; max-width: 800px; margin: 20px auto; border: 2px solid #00ffff; }
-        video { width: 100%; display: block; }
+        /* Общие настройки */
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; background: #000; color: #00ffff; font-family: 'Courier New', monospace; overflow: hidden; }
         
-        .controls { margin-top: 20px; padding: 20px; background: #333; display: inline-block; border-radius: 10px; }
-        input { padding: 10px; width: 200px; }
-        button { padding: 10px 20px; background: #00ffff; border: none; cursor: pointer; font-weight: bold; }
+        /* Сетка: Экран делится на две части */
+        .container { display: flex; height: 100vh; width: 100vw; }
+
+        /* ЛЕВАЯ ЧАСТЬ (ЧАТ) - 30% ширины */
+        .sidebar { 
+            width: 30%; 
+            min-width: 300px;
+            border-right: 2px solid #00ffff; 
+            display: flex; 
+            flex-direction: column; 
+            background: #0a0a0a; 
+            box-shadow: 10px 0 20px rgba(0, 255, 255, 0.1);
+            z-index: 10;
+        }
+        
+        .header { padding: 20px; border-bottom: 1px solid #333; text-align: center; font-weight: bold; letter-spacing: 2px; background: #111; }
+        
+        #log { 
+            flex: 1; 
+            padding: 15px; 
+            overflow-y: auto; 
+            background: #000; 
+            color: #ccc; 
+            font-size: 14px; 
+            border-bottom: 1px solid #333;
+        }
+
+        .input-area { padding: 20px; background: #111; display: flex; gap: 10px; }
+        
+        input { 
+            flex: 1; 
+            background: #222; 
+            border: 1px solid #00ffff; 
+            color: #00ffff; 
+            padding: 12px; 
+            outline: none; 
+            font-family: 'Courier New', monospace;
+        }
+        
+        button { 
+            background: #00ffff; 
+            color: #000; 
+            border: none; 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: 0.2s;
+        }
+        button:hover { background: #fff; box-shadow: 0 0 15px #00ffff; }
+
+        /* ПРАВАЯ ЧАСТЬ (ВИДЕО) - 70% ширины */
+        .video-main { 
+            flex: 1; 
+            background: #000; 
+            position: relative; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        video { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; /* Видео заполняет весь экран красиво */
+        }
+        
+        /* Сообщение поверх видео */
+        .overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border: 1px solid #00ffff;
+            color: #00ffff;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Управление Роботом</h1>
+<div class="container">
+    <div class="sidebar">
+        <div class="header">COMMAND TERMINAL</div>
+        
+        <div id="log">
+            <div style="color: #00ff00;">[SYSTEM] Connection established...</div>
+            <div style="color: #888;">Ожидание ввода...</div>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Введите команду..." onkeydown="handleEnter(event)">
+            <button onclick="sendToTelegram()">SEND</button>
+        </div>
+    </div>
 
-    <div class="video-section">
-        <video controls autoplay muted loop>
-            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-            Ваш браузер не поддерживает видео.
+    <div class="video-main">
+        <div class="overlay">LIVE FEED: CAM_01</div>
+        <video autoplay muted loop playsinline>
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-monitor-close-up-1728-large.mp4" type="video/mp4">
         </video>
     </div>
+</div>
 
-    <div class="controls">
-        <input type="text" id="user-input" placeholder="Введите команду...">
-        <button onclick="sendToTelegram()">ОТПРАВИТЬ</button>
-    </div>
+<script>
+    // НАСТРОЙКИ БОТА
+    const TOKEN = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
+    const CHAT_ID = "2078363462"; 
 
-    <script>
-        function sendToTelegram() {
-            const token = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
-            const chatId = "2078363462";
-            const input = document.getElementById('user-input');
-            const message = input.value;
-
-            if (message.trim() !== "") {
-                // Добавляем случайное число к запросу, чтобы обойти кэш (v=...)
-                const url = https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&v=${Math.random()};
-                
-                fetch(url)
-                .then(res => {
-                    if(res.ok) {
-                        alert("Команда '" + message + "' отправлена!");
-                        input.value = "";
-                    }
-                })
-                .catch(err => alert("Ошибка сети: " + err));
-            }
+    // Функция обработки нажатия Enter
+    function handleEnter(event) {
+        if (event.key === 'Enter') {
+            sendToTelegram();
         }
-    </script>
+    }
+
+    // ГЛАВНАЯ ФУНКЦИЯ ОТПРАВКИ
+    function sendToTelegram() {
+        const input = document.getElementById('user-input');
+        const log = document.getElementById('log');
+        const message = input.value.trim();
+if (message === "") return; // Не отправлять пустоту
+
+        // 1. Показываем сообщение в логе сайта
+        const userLine = document.createElement('div');
+        userLine.innerHTML = <span style="color: #00ffff;">> YOU:</span> ${message};
+        log.appendChild(userLine);
+        
+        // Автопрокрутка вниз
+        log.scrollTop = log.scrollHeight;
+
+        // 2. Отправляем в Telegram
+        const url = https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)};
+
+        fetch(url)
+            .then(response => {
+                if (response.ok) {
+                    console.log("Успешно отправлено: " + message);
+                } else {
+                    const errorLine = document.createElement('div');
+                    errorLine.style.color = "red";
+                    errorLine.textContent = "[ERROR] Ошибка сервера Telegram";
+                    log.appendChild(errorLine);
+                }
+            })
+            .catch(error => {
+                const errorLine = document.createElement('div');
+                errorLine.style.color = "red";
+                errorLine.textContent = "[ERROR] Нет интернета или блокировка";
+                log.appendChild(errorLine);
+                console.error(error);
+            });
+
+        // Очищаем поле ввода
+        input.value = "";
+    }
+</script>
+
 </body>
 </html>
