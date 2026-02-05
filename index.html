@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>PYGAME | COMMAND CENTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <script>
         function sendToTelegram() {
@@ -29,10 +28,27 @@
             log.scrollTop = log.scrollHeight;
         }
 
-        setInterval(function() { 
-            var clock = document.getElementById('clock');
-            if(clock) clock.innerText = new Date().toLocaleTimeString(); 
-        }, 1000);
+        // Запуск видео потока
+        function initVideo() {
+            var video = document.getElementById('video');
+            var videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
+            
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(videoSrc);
+                hls.attachMedia(video);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSrc;
+            }
+        }
+
+        window.onload = function() {
+            initVideo();
+            setInterval(function() { 
+                var clock = document.getElementById('clock');
+                if(clock) clock.innerText = new Date().toLocaleTimeString(); 
+            }, 1000);
+        };
     </script>
 
     <style>
@@ -47,19 +63,19 @@
         #user-input { flex: 1; background: transparent; border: none; color: var(--neon); padding: 0 15px; font-family: 'JetBrains Mono'; outline: none; font-size: 16px; }
         #send-btn { background: var(--neon); color: #000; border: none; padding: 0 30px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; }
         .main { flex: 2; display: flex; align-items: center; justify-content: center; background: #080808; }
-        .video-container { width: 92%; height: 85%; border: 1px solid rgba(0,242,255,0.3); border-radius: 10px; overflow: hidden; background: #000; position: relative; }
-        .video-js { width: 100% !important; height: 100% !important; }
+        .video-container { width: 92%; height: 85%; border: 1px solid rgba(0,242,255,0.3); border-radius: 10px; overflow: hidden; background: #000; }
+        video { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
 <body>
     <header class="top-header">
-        <div>PYGAME_OS // @Pygame_01_bot</div>
-        <div id="clock">00:00:00</div>
+        <div>PYGAME_OS // STREAM_READY</div>
+<div id="clock">00:00:00</div>
     </header>
     <div class="wrapper">
         <div class="sidebar">
             <div class="terminal-box">
-                <div id="log"><div>> System Online. Video channel active.</div></div>
+                <div id="log"><div>> Waiting for command...</div></div>
                 <div class="input-area">
                     <input type="text" id="user-input" placeholder="Команда..." onkeydown="if(event.keyCode==13) sendToTelegram()">
                     <button id="send-btn" onclick="sendToTelegram()">SEND</button>
@@ -68,12 +84,9 @@
         </div>
         <div class="main">
             <div class="video-container">
-<video id="vid" class="video-js vjs-big-play-centered vjs-theme-city" controls preload="auto" poster="https://vjs.zencdn.net/v/oceans.png" data-setup='{"fluid": true, "autoplay": "muted", "loop": true}'>
-                    <source src="https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8" type="application/x-mpegURL">
-                </video>
+                <video id="video" muted autoplay loop playsinline controls></video>
             </div>
         </div>
     </div>
-    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 </body>
 </html>
