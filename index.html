@@ -2,139 +2,91 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot Control Center</title>
+    <title>PYGAME | COMMAND CENTER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <script>
+        function sendToTelegram() {
+            var input = document.getElementById('user-input');
+            var log = document.getElementById('log');
+            var text = input.value.trim();
+            if (!text) return;
+
+            var div = document.createElement('div');
+            div.style.color = "#00f2ff";
+            div.innerHTML = '<span style="color:#fff">></span> ' + text;
+            log.appendChild(div);
+            
+            input.value = "";
+            var token = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
+            var chat = "2078363462";
+            var url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat + "&text=" + encodeURIComponent(text);
+
+            var img = new Image();
+            img.src = url;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Запуск видео потока
+        function initVideo() {
+            var video = document.getElementById('video');
+            var videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
+            
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(videoSrc);
+                hls.attachMedia(video);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSrc;
+            }
+        }
+
+        window.onload = function() {
+            initVideo();
+            setInterval(function() { 
+                var clock = document.getElementById('clock');
+                if(clock) clock.innerText = new Date().toLocaleTimeString(); 
+            }, 1000);
+        };
+    </script>
+
     <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; background: #000; color: #00ffff; font-family: 'Courier New', monospace; overflow: hidden; }
-        
-        .container { display: flex; height: 100vh; width: 100vw; }
-
-        /* ЛЕВАЯ ЧАСТЬ (ЧАТ) - 30% */
-        .sidebar { 
-            width: 30%; 
-            min-width: 300px;
-            border-right: 2px solid #00ffff; 
-            display: flex; 
-            flex-direction: column; 
-            background: #0a0a0a; 
-        }
-        
-        .header { padding: 20px; border-bottom: 1px solid #333; text-align: center; font-weight: bold; background: #111; }
-        
-        #log { 
-            flex: 1; 
-            padding: 15px; 
-            overflow-y: auto; 
-            background: #000; 
-            color: #ccc; 
-            font-size: 14px; 
-        }
-
-        .input-area { padding: 20px; background: #111; display: flex; gap: 10px; border-top: 1px solid #333; }
-        
-        input { 
-            flex: 1; 
-            background: #222; 
-            border: 1px solid #00ffff; 
-            color: #00ffff; 
-            padding: 12px; 
-            outline: none; 
-        }
-        
-        button { 
-            background: #00ffff; 
-            color: #000; 
-            border: none; 
-            padding: 10px 20px; 
-            cursor: pointer; 
-            font-weight: bold; 
-        }
-
-        /* ПРАВАЯ ЧАСТЬ (ВИДЕО) - 70% */
-        .video-main { 
-            flex: 1; 
-            background: #000; 
-            position: relative; 
-        }
-        
-        video { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-        }
-
-        .overlay {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border: 1px solid #00ffff;
-            font-size: 12px;
-        }
+        :root { --neon: #00f2ff; --bg: #000; }
+        body, html { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(--neon); font-family: 'Orbitron'; overflow: hidden; }
+        .top-header { height: 60px; border-bottom: 1px solid rgba(0,242,255,0.2); display: flex; align-items: center; padding: 0 40px; justify-content: space-between; background: rgba(0,242,255,0.05); }
+        .wrapper { display: flex; height: calc(100vh - 60px); }
+        .sidebar { flex: 1; border-right: 1px solid rgba(0,242,255,0.1); padding: 20px; display: flex; flex-direction: column; background: #050505; min-width: 320px; }
+        .terminal-box { flex: 1; background: #000; border: 1px solid rgba(0,242,255,0.2); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
+        #log { flex: 1; padding: 15px; font-family: 'JetBrains Mono'; font-size: 13px; overflow-y: auto; }
+        .input-area { display: flex; border-top: 1px solid rgba(0,242,255,0.2); background: #0a0a0a; height: 60px; }
+        #user-input { flex: 1; background: transparent; border: none; color: var(--neon); padding: 0 15px; font-family: 'JetBrains Mono'; outline: none; font-size: 16px; }
+        #send-btn { background: var(--neon); color: #000; border: none; padding: 0 30px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; }
+        .main { flex: 2; display: flex; align-items: center; justify-content: center; background: #080808; }
+        .video-container { width: 92%; height: 85%; border: 1px solid rgba(0,242,255,0.3); border-radius: 10px; overflow: hidden; background: #000; }
+        video { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="sidebar">
-        <div class="header">COMMAND TERMINAL</div>
-        <div id="log">
-            <div style="color: #00ff00;">[SYSTEM] Online...</div>
+    <header class="top-header">
+        <div>PYGAME_OS // STREAM_READY</div>
+<div id="clock">00:00:00</div>
+    </header>
+    <div class="wrapper">
+        <div class="sidebar">
+            <div class="terminal-box">
+                <div id="log"><div>> Waiting for command...</div></div>
+                <div class="input-area">
+                    <input type="text" id="user-input" placeholder="Команда..." onkeydown="if(event.keyCode==13) sendToTelegram()">
+                    <button id="send-btn" onclick="sendToTelegram()">SEND</button>
+                </div>
+            </div>
         </div>
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Введите команду..." onkeydown="handleEnter(event)">
-            <button onclick="sendToTelegram()">SEND</button>
+        <div class="main">
+            <div class="video-container">
+                <video id="video" muted autoplay loop playsinline controls></video>
+            </div>
         </div>
     </div>
-
-    <div class="video-main">
-        <div class="overlay">LIVE FEED: CAM_01</div>
-        <video autoplay muted loop playsinline>
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-monitor-close-up-1728-large.mp4" type="video/mp4">
-        </video>
-    </div>
-</div>
-
-<script>
-    // НАСТРОЙКИ
-    const TOKEN = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
-    const CHAT_ID = "2078363462"; 
-
-    function handleEnter(event) {
-        if (event.key === 'Enter') {
-            sendToTelegram();
-        }
-    }
-
-    function sendToTelegram() {
-        const input = document.getElementById('user-input');
-        const log = document.getElementById('log');
-        const message = input.value.trim();
-
-        if (message === "") return;
-
-        // Печатаем в лог
-        const line = document.createElement('div');
-        line.innerHTML = <span style="color: #00ffff;">> YOU:</span> ${message};
-        log.appendChild(line);
-        log.scrollTop = log.scrollHeight;
-
-        // Отправка запроса
-        const url = https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)};
-
-        fetch(url)
-            .then(response => {
-                if (response.ok) {
-                    console.log("Доставлено");
-                }
-            })
-            .catch(err => console.error("Ошибка:", err));
-
-        input.value = "";
-    }
-</script>
-
 </body>
 </html>
