@@ -5,6 +5,52 @@
     <title>PYGAME | COMMAND CENTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <script>
+        function sendToTelegram() {
+            var input = document.getElementById('user-input');
+            var log = document.getElementById('log');
+            var text = input.value.trim();
+            if (!text) return;
+
+            var div = document.createElement('div');
+            div.style.color = "#00f2ff";
+            div.innerHTML = '<span style="color:#fff">></span> ' + text;
+            log.appendChild(div);
+            
+            input.value = "";
+            var token = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
+            var chat = "2078363462";
+            var url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat + "&text=" + encodeURIComponent(text);
+
+            var img = new Image();
+            img.src = url;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Запуск видео потока
+        function initVideo() {
+            var video = document.getElementById('video');
+            var videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
+            
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(videoSrc);
+                hls.attachMedia(video);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSrc;
+            }
+        }
+
+        window.onload = function() {
+            initVideo();
+            setInterval(function() { 
+                var clock = document.getElementById('clock');
+                if(clock) clock.innerText = new Date().toLocaleTimeString(); 
+            }, 1000);
+        };
+    </script>
+
     <style>
         :root { --neon: #00f2ff; --bg: #000; }
         body, html { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(--neon); font-family: 'Orbitron'; overflow: hidden; }
@@ -23,16 +69,16 @@
 </head>
 <body>
     <header class="top-header">
-        <div>PYGAME_OS // COMMAND CENTER</div>
-        <div id="clock">00:00:00</div>
+        <div>PYGAME_OS // STREAM_READY</div>
+<div id="clock">00:00:00</div>
     </header>
     <div class="wrapper">
         <div class="sidebar">
             <div class="terminal-box">
                 <div id="log"><div>> Waiting for command...</div></div>
                 <div class="input-area">
-                    <input type="text" id="user-input" placeholder="Команда..." onkeydown="if(event.keyCode==13) sendToBot()">
-                    <button id="send-btn" onclick="sendToBot()">SEND</button>
+                    <input type="text" id="user-input" placeholder="Команда..." onkeydown="if(event.keyCode==13) sendToTelegram()">
+                    <button id="send-btn" onclick="sendToTelegram()">SEND</button>
                 </div>
             </div>
         </div>
@@ -42,47 +88,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        const TOKEN = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
-        const CHAT_ID = "2078363462";
-
-        function sendToBot() {
-            const input = document.getElementById('user-input');
-            const log = document.getElementById('log');
-            const text = input.value.trim();
-            if (!text) return;
-
-            // Вывод в лог на сайте
-            const div = document.createElement('div');
-            div.style.color = "#00f2ff";
-            div.innerHTML = <span>> SENDING:</span> ${text.toUpperCase()};
-            log.appendChild(div);
-            log.scrollTop = log.scrollHeight;
-
-            // Прямая отправка в Telegram
-            const url = https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)};
-            fetch(url).then(() => console.log("OK")).catch(err => console.error(err));
-
-            input.value = "";
-        }
-
-        function initVideo() {
-const video = document.getElementById('video');
-            const videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(videoSrc);
-                hls.attachMedia(video);
-            }
-        }
-
-        window.onload = function() {
-            initVideo();
-            setInterval(() => {
-                document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-            }, 1000);
-        };
-    </script>
 </body>
 </html>
