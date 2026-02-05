@@ -4,90 +4,43 @@
     <meta charset="UTF-8">
     <title>Управление роботом</title>
     <style>
-        body {
-            background: #000;
-            color: #0ff;
-            font-family: monospace;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .chat {
-            border: 1px solid #0ff;
-            height: 400px;
-            overflow-y: auto;
-            padding: 10px;
-            margin-bottom: 10px;
-            background: #111;
-        }
-        .input-box {
-            display: flex;
-            gap: 10px;
-        }
-        input {
-            flex: 1;
-            background: #222;
-            border: 1px solid #0ff;
-            color: #fff;
-            padding: 10px;
-            font-family: monospace;
-        }
-        button {
-            background: #0ff;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .message {
-            margin: 5px 0;
-            padding: 5px;
-            border-left: 2px solid #0ff;
-        }
+        body { background: #000; color: #0ff; font-family: monospace; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .chat { border: 1px solid #0ff; height: 400px; overflow-y: auto; padding: 10px; margin-bottom: 10px; background: #111; }
+        .input-box { display: flex; gap: 10px; }
+        input { flex: 1; background: #222; border: 1px solid #0ff; color: #fff; padding: 10px; font-family: monospace; }
+        button { background: #0ff; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        .message { margin: 5px 0; padding: 5px; border-left: 2px solid #0ff; }
         .user { color: #fff; }
         .bot { color: #0f0; }
-        .error { color: #f00; }
+        .sent { color: #ff0; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🤖 Управление роботом</h1>
-        
         <div class="chat" id="chat"></div>
-        
         <div class="input-box">
             <input type="text" id="command" placeholder="вперед, назад, влево, вправо" autocomplete="off">
             <button onclick="sendCommand()">Отправить</button>
         </div>
-        
-        <div style="margin-top: 20px; font-size: 12px; color: #888;">
-            Команды отправляются через Telegram ботов
+        <div style="margin-top: 10px; display: flex; gap: 5px; flex-wrap: wrap;">
+            <button onclick="sendQuick('вперед')" style="background: #333; color: #0ff;">↑ Вперед</button>
+            <button onclick="sendQuick('назад')" style="background: #333; color: #0ff;">↓ Назад</button>
+            <button onclick="sendQuick('влево')" style="background: #333; color: #0ff;">← Влево</button>
+            <button onclick="sendQuick('вправо')" style="background: #333; color: #0ff;">→ Вправо</button>
+            <button onclick="sendQuick('стоп')" style="background: #333; color: #f00;">⏹ Стоп</button>
         </div>
     </div>
 
     <script>
-        // Настройки двух ботов
-        const BOTS = [
-            {
-                name: "Бот 1",
-                token: "8577616143:AAElhySaMguA6IritcG7p3UE5Qvdsk3hJY",
-                chat_id: "-5063173925"
-            },
-            {
-                name: "Бот 2", 
-                token: "7208925888:AAEMIL5YKKlKw_xQSZoRB9gabaAvm2T0weQ",
-                chat_id: "-5063173925"
-            }
-        ];
-
         const chat = document.getElementById('chat');
         const commandInput = document.getElementById('command');
+        
+        // Только ВТОРОЙ бот (который слушает сообщения в пайгейме)
+        const BOT_TOKEN = "7208925888:AAEMIL5YKKlKw_xQSZoRB9gabaAvm2T0weQ";
+        const CHAT_ID = "-5063173925";
 
-        // Добавить сообщение в чат
         function addMessage(text, className = 'user') {
             const div = document.createElement('div');
             div.className = `message ${className}`;
@@ -96,60 +49,58 @@
             chat.scrollTop = chat.scrollHeight;
         }
 
-        // Отправить команду через ВСЕХ ботов
         function sendCommand() {
             const cmd = commandInput.value.trim().toLowerCase();
             if (!cmd) return;
             
-            // Показать команду от пользователя
             addMessage(`Вы: ${cmd}`, 'user');
             commandInput.value = '';
             
-            // Отправить через каждого бота
-            BOTS.forEach((bot, index) => {
-                sendViaBot(bot, cmd, index + 1);
-            });
+            // Отправляем через второго бота
+            sendToBot(cmd);
         }
 
-        // Отправить через одного бота
-        function sendViaBot(bot, cmd, botNumber) {
-            const url = `https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chat_id}&text=${encodeURIComponent(cmd)}`;
+        function sendQuick(cmd) {
+            commandInput.value = cmd;
+            sendCommand();
+        }
+
+        function sendToBot(command) {
+            // Показать отправку
+            addMessage(`📤 Отправляю команду: "${command}"`, 'sent');
             
-            // Показать, что отправляем
-            addMessage(`🤖 Бот ${botNumber}: Отправляю команду "${cmd}"...`, 'bot');
-            
-            // Используем iframe для обхода CORS
+            // Создаем iframe для отправки (обход CORS)
             const iframe = document.createElement('iframe');
             iframe.style.display = 'none';
+            
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(command)}`;
             iframe.src = url;
+            
             document.body.appendChild(iframe);
             
-            // Удалить iframe через 5 секунд
+            // Удалить iframe через 3 секунды
             setTimeout(() => {
                 if (document.body.contains(iframe)) {
                     document.body.removeChild(iframe);
                 }
-            }, 5000);
-            
-            // Предполагаем успешную отправку (так как не можем проверить ответ из-за CORS)
-            setTimeout(() => {
-                addMessage(`✅ Бот ${botNumber}: Команда "${cmd}" отправлена`, 'bot');
+                // Показать успешную отправку
+                addMessage(`✅ Команда "${command}" отправлена в чат`, 'bot');
             }, 1000);
         }
 
-        // Отправить при нажатии Enter
+        // Обработка Enter
         commandInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendCommand();
-            }
+            if (e.key === 'Enter') sendCommand();
         });
 
         // Фокус на поле ввода
         commandInput.focus();
 
-        // Стартовое сообщение
-        addMessage('Система готова к работе. Введите команду:', 'bot');
-        addMessage('Доступные команды: вперед, назад, влево, вправо, стоп', 'bot');
+        // Стартовые сообщения
+        addMessage('🤖 Система управления роботом', 'bot');
+        addMessage('📡 Используется Бот 2 для отправки команд', 'bot');
+        addMessage('🎮 Ваш PyGame скрипт слушает этот же чат', 'bot');
+        addMessage('💡 Введите команду или используйте кнопки', 'bot');
     </script>
 </body>
 </html>
