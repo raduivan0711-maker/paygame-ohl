@@ -2,79 +2,54 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>RESTAURANT CONTROL | @Pygame_01_bot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title>Robot Control Center</title>
     <style>
-        :root { --neon: #00ffff; --bg: #0a0a0c; }
-        body { background: var(--bg); color: var(--neon); font-family: 'JetBrains+Mono', monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        header { padding: 15px 25px; border-bottom: 1px solid rgba(0,255,255,0.2); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); }
-        .wrapper { display: flex; flex: 1; overflow: hidden; }
-        .sidebar { width: 320px; border-right: 1px solid rgba(0,255,255,0.1); padding: 20px; display: flex; flex-direction: column; background: #0f0f12; }
-        .main { flex: 1; display: flex; align-items: center; justify-content: center; background: #000; }
-        .terminal-box { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,255,255,0.3); padding: 15px; margin-bottom: 20px; overflow-y: auto; color: #fff; font-size: 13px; }
-        .input-area { display: flex; gap: 10px; }
-        input { flex: 1; background: #1a1a1d; border: 1px solid var(--neon); color: var(--neon); padding: 12px; outline: none; border-radius: 4px; }
-        button { background: var(--neon); color: #000; border: none; padding: 10px 25px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; border-radius: 4px; }
-        button:hover { background: #fff; box-shadow: 0 0 15px var(--neon); }
+        body { background-color: #1a1a1a; color: white; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        .header { padding: 20px; font-size: 24px; font-weight: bold; color: #00ffff; }
+        .video-container { width: 80%; max-width: 800px; height: 450px; background: #000; border: 2px solid #333; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .controls { display: flex; gap: 10px; padding: 20px; background: #222; border-radius: 10px; }
+        input { padding: 10px; width: 250px; border-radius: 5px; border: 1px solid #00ffff; background: #333; color: white; outline: none; }
+        button { padding: 10px 20px; background: #00ffff; color: black; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #00cccc; }
     </style>
 </head>
 <body>
 
-<header>
-    <div style="font-family: 'Orbitron'; letter-spacing: 2px;">SYSTEM_STATUS: ONLINE // @Pygame_01_bot</div>
-    <div id="clock" style="color: #fff;">00:00:00</div>
-</header>
+<div class="header">LIVE STREAM FROM @Pygame_01_bot</div>
 
-<div class="wrapper">
-    <div class="sidebar">
-        <h3 style="font-family: 'Orbitron'; font-size: 14px; margin-top: 0;">LOGS</h3>
-        <div class="terminal-box" id="log">
-            <div style="color: #00ff00;">[READY] Waiting for user command...</div>
-        </div>
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Команда..." onkeydown="if(event.keyCode==13) sendToTelegram()">
-            <button onclick="sendToTelegram()">SEND</button>
-        </div>
-    </div>
-    
-    <div class="main">
-        <div style="text-align: center; color: #555;">
-            <div style="font-size: 50px;">🤖</div>
-            <p>STREAM ACTIVE<br>Control your robot in St. Petersburg</p>
-        </div>
+<div class="video-container">
+    <div style="text-align: center; color: #555;">
+        <div style="font-size: 50px;">📺</div>
+        <p>VIDEO STREAM ACTIVE<br><small>Connect your OBS to display camera</small></p>
     </div>
 </div>
 
+<div class="controls">
+    <input type="text" id="user-input" placeholder="Введите команду (вперед, назад...)" onkeydown="if(event.keyCode==13) sendToTelegram()">
+    <button onclick="sendToTelegram()">SEND COMMAND</button>
+</div>
+
 <script>
-    // ТВОИ ДАННЫЕ УЖЕ ТУТ:
     const TOKEN = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
     const CHAT_ID = "2078363462"; 
 
     function sendToTelegram() {
         const input = document.getElementById('user-input');
-        const log = document.getElementById('log');
-        const msg = input.value.trim().toLowerCase();
+        const message = input.value.trim().toLowerCase();
 
-        if (msg === "") return;
-
-        // Лог на сайте
-        const entry = document.createElement('div');
-        entry.innerHTML = <span style="color: #00ffff;">></span> ${msg.toUpperCase()};
-        log.appendChild(entry);
-        log.scrollTop = log.scrollHeight;
-
-        // ОТПРАВКА
-        fetch(https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)})
-        .then(response => {
-            if (response.ok) { console.log("Sent!"); }
-        });
-
-        input.value = "";
+        if (message !== "") {
+            const url = https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)};
+            
+            fetch(url)
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Команда отправлена: " + message);
+                        input.value = ""; // Очистить поле после отправки
+                    }
+                })
+                .catch(error => console.error("Ошибка сети:", error));
+        }
     }
-
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-    }, 1000);
 </script>
 
 </body>
