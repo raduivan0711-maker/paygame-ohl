@@ -6,37 +6,38 @@
     <style>
         body { margin: 0; padding: 0; background: #000; color: #00ffff; font-family: 'Courier New', monospace; overflow: hidden; }
         
-        /* Сетка: 1/3 слева, остальное видео */
+        /* Сетка: 1/3 слева, 2/3 видео */
         .container { display: flex; height: 100vh; width: 100vw; }
 
-        /* Левая панель (1/3) */
-        .sidebar { width: 33.33%; border-right: 1px solid #00ffff; display: flex; flex-direction: column; background: #0a0a0a; }
+        /* Левая панель (Чат) */
+        .sidebar { width: 33.33%; border-right: 2px solid #00ffff; display: flex; flex-direction: column; background: #0a0a0a; box-shadow: 5px 0 15px rgba(0,255,255,0.2); }
         
-        .chat-header { padding: 20px; border-bottom: 1px solid #333; font-weight: bold; text-align: center; }
+        .chat-header { padding: 20px; border-bottom: 1px solid #333; font-weight: bold; text-align: center; letter-spacing: 2px; }
         
-        #log { flex: 1; padding: 15px; overflow-y: auto; font-size: 14px; color: #fff; line-height: 1.5; }
+        #log { flex: 1; padding: 15px; overflow-y: auto; font-size: 14px; color: #fff; background: #050505; }
         
-        .input-area { padding: 20px; border-top: 1px solid #333; display: flex; gap: 5px; }
+        .input-area { padding: 20px; border-top: 1px solid #333; display: flex; gap: 10px; }
         
-        input { flex: 1; background: #111; border: 1px solid #00ffff; color: #00ffff; padding: 10px; outline: none; }
+        input { flex: 1; background: #111; border: 1px solid #00ffff; color: #00ffff; padding: 12px; outline: none; }
         
-        button { background: #00ffff; color: #000; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; }
+        button { background: #00ffff; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #fff; box-shadow: 0 0 10px #00ffff; }
 
         /* Правая панель (Видео) */
-        .video-main { flex: 1; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
+        .video-main { flex: 1; background: #000; position: relative; }
         
-        /* Заглушка для видео (сюда вставляй свой плеер/стрим) */
-        .video-placeholder { width: 100%; height: 100%; border: none; }
+        video { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="sidebar">
-        <div class="chat-header">TERMINAL @Pygame_01_bot</div>
+        <div class="chat-header">SYSTEM CONTROL // @Pygame_01_bot</div>
         
         <div id="log">
-            <div style="color: #00ff00;">[SYSTEM] Online...</div>
+            <div style="color: #00ff00;">[SYSTEM] Terminal online...</div>
+            <div style="color: #888;">Ожидание команд (вперед, назад, склад...)</div>
         </div>
         
         <div class="input-area">
@@ -46,10 +47,10 @@
     </div>
 
     <div class="video-main">
-        <div class="video-placeholder" style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-            <div style="font-size: 100px;">📹</div>
-            <p>VIDEO STREAM ACTIVE</p>
-        </div>
+        <video autoplay muted loop playsinline>
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-night-sky-11640-large.mp4" type="video/mp4">
+            Ваш браузер не поддерживает видео.
+        </video>
     </div>
 </div>
 
@@ -63,27 +64,29 @@
         const message = input.value.trim();
 
         if (message !== "") {
-            // Добавляем сообщение в лог на сайте
+            // Пишем в терминал сайта
             const entry = document.createElement('div');
-            entry.innerHTML = <span style="color: #00ffff;">> ${message}</span>;
+            entry.style.marginBottom = "5px";
+            entry.innerHTML = <span style="color: #00ffff;">> SENDING:</span> ${message.toUpperCase()};
             log.appendChild(entry);
             log.scrollTop = log.scrollHeight;
 
-            // Отправка в Telegram
+            // Отправка запроса боту
             const url = https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)};
             
             fetch(url)
                 .then(res => {
-                    if (!res.ok) {
-                        const err = document.createElement('div');
-                        err.style.color = "red";
-                        err.textContent = "[ERROR] Не удалось отправить";
-                        log.appendChild(err);
+                    if (res.ok) {
+                        const success = document.createElement('div');
+                        success.style.color = "#00ff00";
+                        success.style.fontSize = "10px";
+                        success.textContent = "[SUCCESS] Delivered to Bot";
+                        log.appendChild(success);
                     }
                 })
                 .catch(err => console.error(err));
 
-            input.value = ""; // Очистка
+            input.value = ""; 
         }
     }
 </script>
