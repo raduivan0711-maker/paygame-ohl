@@ -2,133 +2,652 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Яндекс.Телемост</title>
+    <title>Screen Area Stream - Трансляция области</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            background: #000;
+            background: #0a0a0a;
             color: #fff;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, #003366, #0066cc);
+            border-radius: 15px;
+            border: 2px solid #00ccff;
+        }
+        
+        .header h1 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .mode-btn {
+            padding: 15px 30px;
+            background: #222;
+            color: #fff;
+            border: 2px solid #444;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn:hover {
+            background: #333;
+            border-color: #00ccff;
+        }
+        
+        .mode-btn.active {
+            background: #0066cc;
+            border-color: #00ccff;
+            color: #fff;
+        }
+        
+        .panel {
+            display: none;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            min-height: 400px;
+        }
+        
+        .broadcaster-panel {
+            background: rgba(0, 60, 0, 0.2);
+            border: 2px solid #00cc66;
+        }
+        
+        .viewer-panel {
+            background: rgba(60, 40, 0, 0.2);
+            border: 2px solid #ff9900;
+        }
+        
+        .section-title {
+            color: #00ccff;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            background: #0088ff;
+            transform: translateY(-2px);
+        }
+        
+        .btn-stop {
+            background: #cc3300;
+        }
+        
+        .btn-stop:hover {
+            background: #ff3300;
+        }
+        
+        .btn-area {
+            background: #009900;
+        }
+        
+        .btn-area:hover {
+            background: #00cc00;
+        }
+        
+        .video-container {
+            position: relative;
+            background: #000;
+            border: 2px solid #444;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            min-height: 300px;
+        }
+        
+        video {
+            width: 100%;
+            height: auto;
+            background: #000;
+        }
+        
+        .placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
+            color: #666;
             text-align: center;
-        }
-        
-        .container {
-            max-width: 800px;
             padding: 40px;
-            background: #111;
-            border-radius: 20px;
-            border: 3px solid #f00;
-            box-shadow: 0 0 50px rgba(255,0,0,0.3);
         }
         
-        h1 {
-            color: #f00;
+        .placeholder-icon {
+            font-size: 60px;
             margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(255,0,0,0.5);
+            color: #0066cc;
         }
         
-        .btn {
-            display: inline-block;
-            margin: 20px;
-            padding: 20px 40px;
-            background: #f00;
-            color: white;
-            text-decoration: none;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 10px;
-            transition: all 0.3s;
-            border: 2px solid #f00;
+        .area-selection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            z-index: 1000;
+            cursor: crosshair;
         }
         
-        .btn:hover {
-            background: #ff3333;
-            box-shadow: 0 0 30px rgba(255,0,0,0.5);
-            transform: scale(1.05);
+        .selection-box {
+            position: absolute;
+            border: 2px dashed #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+            pointer-events: none;
         }
         
-        .info {
-            margin: 30px 0;
-            padding: 20px;
-            background: #222;
-            border-radius: 10px;
-            border-left: 4px solid #f00;
-        }
-        
-        .code {
-            font-family: monospace;
-            background: #000;
-            padding: 15px;
+        .selection-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
             border-radius: 5px;
+            color: #0f0;
+            font-family: monospace;
+        }
+        
+        .info-panel {
+            background: rgba(0, 20, 40, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #00ccff;
+        }
+        
+        .info-item {
             margin: 10px 0;
-            border: 1px solid #333;
-            color: #0ff;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
         }
         
         .status {
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin: 20px 0;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
         }
         
-        .dot {
-            width: 12px;
-            height: 12px;
-            background: #0f0;
+        .status-dot {
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            margin-right: 10px;
+            background: #ccc;
+        }
+        
+        .status-active {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
             animation: pulse 1.5s infinite;
         }
         
         @keyframes pulse {
             0% { opacity: 1; }
-            50% { opacity: 0.3; }
+            50% { opacity: 0.5; }
             100% { opacity: 1; }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #888;
+            border-top: 1px solid #333;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔴 Яндекс.Телемост Live</h1>
-        
-        <div class="status">
-            <div class="dot"></div>
-            <span>Конференция активна и ожидает подключения</span>
+        <div class="header">
+            <h1>🎥 Screen Area Stream - Выбор области трансляции</h1>
+            <p>Транслируйте любую область экрана между устройствами</p>
         </div>
         
-        <div class="info">
-            <h3>Информация о трансляции:</h3>
-            <p>ID конференции:</p>
-            <div class="code">60568306863637</div>
-            <p>Ссылка для подключения:</p>
-            <div class="code">https://telemost.yandex.ru/j/60568306863637</div>
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="showPanel('broadcaster')">
+                📡 Режим трансляции (Ведущий)
+            </button>
+            <button class="mode-btn" onclick="showPanel('viewer')">
+                📺 Режим просмотра (Зритель)
+            </button>
         </div>
         
-        <a href="https://telemost.yandex.ru/j/60568306863637" 
-           target="_blank" 
-           class="btn">
-           🚀 Перейти к трансляции
-        </a>
+        <!-- Панель трансляции (Ведущий) -->
+        <div id="broadcasterPanel" class="panel broadcaster-panel" style="display: block;">
+            <h2 class="section-title">📡 Настройка трансляции</h2>
+            
+            <div class="controls">
+                <button class="btn" onclick="startFullScreen()">
+                    <span>🖥️</span> Весь экран
+                </button>
+                <button class="btn btn-area" onclick="selectArea()">
+                    <span>🎯</span> Выбрать область
+                </button>
+                <button class="btn" onclick="startWindow()">
+                    <span>📁</span> Окно приложения
+                </button>
+                <button class="btn btn-stop" onclick="stopStream()">
+                    <span>⏹️</span> Остановить
+                </button>
+            </div>
+            
+            <div class="status">
+                <div class="status-dot" id="broadcastStatus"></div>
+                <span id="broadcastStatusText">Трансляция не активна</span>
+            </div>
+            
+            <div class="video-container">
+                <video id="broadcastVideo" autoplay playsinline></video>
+                <div id="broadcastPlaceholder" class="placeholder">
+                    <div class="placeholder-icon">🖥️</div>
+                    <h3>Предпросмотр трансляции</h3>
+                    <p>Выберите источник трансляции выше</p>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <h3>📋 Информация о трансляции:</h3>
+                <div class="info-item">
+                    <strong>Ссылка для зрителей:</strong>
+                    <div style="margin-top: 5px; padding: 8px; background: #000; border-radius: 5px; font-family: monospace;">
+                        <span id="streamLink">Откройте эту страницу на другом устройстве</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <strong>Инструкция:</strong>
+                    <p>1. Выберите "Весь экран", "Окно" или "Выбрать область"</p>
+                    <p>2. Разрешите доступ при запросе браузера</p>
+                    <p>3. Для области: выделите нужную часть экрана</p>
+                    <p>4. Откройте эту страницу на другом устройстве в режиме "Зритель"</p>
+                </div>
+            </div>
+        </div>
         
-        <p style="margin-top: 30px; color: #888; font-size: 14px;">
-            * Нажмите кнопку выше для открытия трансляции в новой вкладке
-        </p>
+        <!-- Панель просмотра (Зритель) -->
+        <div id="viewerPanel" class="panel viewer-panel">
+            <h2 class="section-title">📺 Просмотр трансляции</h2>
+            
+            <div class="status">
+                <div class="status-dot" id="viewerStatus"></div>
+                <span id="viewerStatusText">Ожидание трансляции...</span>
+            </div>
+            
+            <div class="video-container">
+                <video id="viewerVideo" autoplay playsinline></video>
+                <div id="viewerPlaceholder" class="placeholder">
+                    <div class="placeholder-icon">👁️</div>
+                    <h3>Ожидание трансляции</h3>
+                    <p>Попросите ведущего начать трансляцию</p>
+                    <p>Обновите страницу, когда трансляция начнется</p>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <h3>💡 Как подключиться:</h3>
+                <div class="info-item">
+                    <p>1. Попросите ведущего начать трансляцию на его устройстве</p>
+                    <p>2. Эта страница автоматически покажет трансляцию</p>
+                    <p>3. Если не работает - обновите страницу (F5)</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Выбор области экрана -->
+        <div id="areaSelection" class="area-selection">
+            <div class="selection-info">
+                Перетащите чтобы выбрать область | ESC для отмены
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© Screen Area Stream | Работает прямо в браузере без установок</p>
+            <p style="font-size: 12px; margin-top: 10px;">Поддерживаемые браузеры: Chrome, Edge, Firefox, Opera</p>
+        </div>
     </div>
-    
+
     <script>
-        // Автооткрытие через 3 секунды (можно отключить)
-        setTimeout(() => {
-            if (confirm("Открыть Яндекс.Телемост в новой вкладке?")) {
-                window.open('https://telemost.yandex.ru/j/60568306863637', '_blank');
+        // Элементы DOM
+        const broadcastVideo = document.getElementById('broadcastVideo');
+        const broadcastPlaceholder = document.getElementById('broadcastPlaceholder');
+        const broadcastStatus = document.getElementById('broadcastStatus');
+        const broadcastStatusText = document.getElementById('broadcastStatusText');
+        const viewerVideo = document.getElementById('viewerVideo');
+        const viewerPlaceholder = document.getElementById('viewerPlaceholder');
+        const viewerStatus = document.getElementById('viewerStatus');
+        const viewerStatusText = document.getElementById('viewerStatusText');
+        const areaSelection = document.getElementById('areaSelection');
+        const streamLink = document.getElementById('streamLink');
+        
+        // Переменные
+        let mediaStream = null;
+        let isStreaming = false;
+        let selectionBox = null;
+        let startX, startY;
+        
+        // Показ текущего URL
+        streamLink.textContent = window.location.href;
+        
+        // Переключение панелей
+        function showPanel(panelName) {
+            document.getElementById('broadcasterPanel').style.display = 'none';
+            document.getElementById('viewerPanel').style.display = 'none';
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(panelName + 'Panel').style.display = 'block';
+            document.querySelector(`button[onclick="showPanel('${panelName}')"]`).classList.add('active');
+        }
+        
+        // Начать трансляцию всего экрана
+        async function startFullScreen() {
+            await startScreenShare('screen');
+        }
+        
+        // Начать трансляцию окна
+        async function startWindow() {
+            await startScreenShare('window');
+        }
+        
+        // Общая функция запуска трансляции
+        async function startScreenShare(displaySurface = 'screen') {
+            try {
+                // Останавливаем предыдущий поток если есть
+                if (mediaStream) {
+                    mediaStream.getTracks().forEach(track => track.stop());
+                }
+                
+                // Запрашиваем доступ к экрану
+                mediaStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        cursor: "always",
+                        displaySurface: displaySurface
+                    },
+                    audio: true
+                });
+                
+                // Показываем видео
+                broadcastVideo.srcObject = mediaStream;
+                broadcastVideo.style.display = 'block';
+                broadcastPlaceholder.style.display = 'none';
+                
+                // Обновляем статус
+                broadcastStatus.className = 'status-dot status-active';
+                broadcastStatusText.textContent = 'Трансляция активна';
+                isStreaming = true;
+                
+                // Обработчик остановки трансляции
+                mediaStream.getVideoTracks()[0].onended = () => {
+                    stopStream();
+                };
+                
+                console.log('Трансляция начата');
+                
+                // Для зрителей (имитация - в реальности нужен сервер)
+                simulateViewerStream();
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                broadcastStatusText.textContent = 'Ошибка: ' + error.message;
+                broadcastStatus.style.background = '#f00';
             }
-        }, 3000);
+        }
+        
+        // Выбор области экрана
+        function selectArea() {
+            // Показываем слой выбора области
+            areaSelection.style.display = 'block';
+            
+            // Создаем рамку выбора
+            selectionBox = document.createElement('div');
+            selectionBox.className = 'selection-box';
+            areaSelection.appendChild(selectionBox);
+            
+            // События мыши
+            areaSelection.addEventListener('mousedown', startSelection);
+            document.addEventListener('keydown', cancelSelection);
+            
+            // Предупреждение
+            alert('Выделите область экрана для трансляции. Нажмите ESC для отмены.');
+        }
+        
+        // Начало выделения области
+        function startSelection(e) {
+            e.preventDefault();
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            selectionBox.style.left = startX + 'px';
+            selectionBox.style.top = startY + 'px';
+            selectionBox.style.width = '0px';
+            selectionBox.style.height = '0px';
+            
+            document.addEventListener('mousemove', updateSelection);
+            document.addEventListener('mouseup', endSelection);
+        }
+        
+        // Обновление рамки при перемещении мыши
+        function updateSelection(e) {
+            const currentX = e.clientX;
+            const currentY = e.clientY;
+            
+            const width = currentX - startX;
+            const height = currentY - startY;
+            
+            selectionBox.style.width = Math.abs(width) + 'px';
+            selectionBox.style.height = Math.abs(height) + 'px';
+            selectionBox.style.left = (width > 0 ? startX : currentX) + 'px';
+            selectionBox.style.top = (height > 0 ? startY : currentY) + 'px';
+        }
+        
+        // Завершение выбора области
+        async function endSelection() {
+            document.removeEventListener('mousemove', updateSelection);
+            document.removeEventListener('mouseup', endSelection);
+            
+            const rect = selectionBox.getBoundingClientRect();
+            
+            // Проверяем минимальный размер
+            if (rect.width < 100 || rect.height < 100) {
+                alert('Выберите область большего размера (минимум 100x100 пикселей)');
+                cancelSelection();
+                return;
+            }
+            
+            // Запускаем трансляцию с выбранной областью
+            await startAreaStream(rect);
+            
+            // Очищаем
+            areaSelection.removeChild(selectionBox);
+            areaSelection.style.display = 'none';
+            selectionBox = null;
+        }
+        
+        // Отмена выбора области
+        function cancelSelection(e) {
+            if (e && e.key !== 'Escape') return;
+            
+            if (selectionBox && selectionBox.parentNode) {
+                areaSelection.removeChild(selectionBox);
+            }
+            
+            areaSelection.style.display = 'none';
+            selectionBox = null;
+            
+            areaSelection.removeEventListener('mousedown', startSelection);
+            document.removeEventListener('keydown', cancelSelection);
+            document.removeEventListener('mousemove', updateSelection);
+            document.removeEventListener('mouseup', endSelection);
+        }
+        
+        // Запуск трансляции области (через Canvas)
+        async function startAreaStream(rect) {
+            try {
+                // Сначала получаем весь экран
+                const fullStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: true,
+                    audio: true
+                });
+                
+                // Создаем видео элемент для захвата
+                const tempVideo = document.createElement('video');
+                tempVideo.srcObject = fullStream;
+                await tempVideo.play();
+                
+                // Создаем canvas для обрезки
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                
+                // Функция обрезки кадра
+                function captureFrame() {
+                    if (!isStreaming) return;
+                    
+                    ctx.drawImage(
+                        tempVideo,
+                        rect.left, rect.top, rect.width, rect.height, // source
+                        0, 0, rect.width, rect.height                 // destination
+                    );
+                    
+                    requestAnimationFrame(captureFrame);
+                }
+                
+                // Получаем поток с canvas
+                const canvasStream = canvas.captureStream(30); // 30 FPS
+                
+                // Используем этот поток
+                mediaStream = canvasStream;
+                broadcastVideo.srcObject = mediaStream;
+                broadcastVideo.style.display = 'block';
+                broadcastPlaceholder.style.display = 'none';
+                
+                // Обновляем статус
+                broadcastStatus.className = 'status-dot status-active';
+                broadcastStatusText.textContent = 'Трансляция области активна';
+                isStreaming = true;
+                
+                // Начинаем захват кадров
+                captureFrame();
+                
+                // Обработчик остановки
+                fullStream.getVideoTracks()[0].onended = () => {
+                    stopStream();
+                };
+                
+                console.log('Трансляция области начата:', rect);
+                
+                // Для зрителей
+                simulateViewerStream();
+                
+            } catch (error) {
+                console.error('Ошибка трансляции области:', error);
+                broadcastStatusText.textContent = 'Ошибка области: ' + error.message;
+            }
+        }
+        
+        // Остановить трансляцию
+        function stopStream() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            
+            broadcastVideo.srcObject = null;
+            broadcastVideo.style.display = 'none';
+            broadcastPlaceholder.style.display = 'block';
+            broadcastStatus.className = 'status-dot';
+            broadcastStatusText.textContent = 'Трансляция остановлена';
+            isStreaming = false;
+            
+            // Для зрителей
+            viewerVideo.srcObject = null;
+            viewerVideo.style.display = 'none';
+            viewerPlaceholder.style.display = 'block';
+            viewerStatus.className = 'status-dot';
+            viewerStatusText.textContent = 'Трансляция остановлена';
+            
+            console.log('Трансляция остановлена');
+        }
+        
+        // Имитация потока для зрителей (в реальности нужен WebSocket сервер)
+        function simulateViewerStream() {
+            if (!isStreaming) return;
+            
+            viewerVideo.srcObject = mediaStream;
+            viewerVideo.style.display = 'block';
+            viewerPlaceholder.style.display = 'none';
+            viewerStatus.className = 'status-dot status-active';
+            viewerStatusText.textContent = 'Смотрю трансляцию';
+        }
+        
+        // Проверка поддержки браузера
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+            alert('Ваш браузер не поддерживает трансляцию экрана. Пожалуйста, используйте Chrome или Edge.');
+        }
+        
+        // Очистка при закрытии
+        window.addEventListener('beforeunload', () => {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+        });
     </script>
 </body>
 </html>
