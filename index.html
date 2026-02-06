@@ -1,92 +1,277 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>PYGAME | COMMAND CENTER</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    
-    <script>
-        function sendToTelegram() {
-            var input = document.getElementById('user-input');
-            var log = document.getElementById('log');
-            var text = input.value.trim();
-            if (!text) return;
-
-            var div = document.createElement('div');
-            div.style.color = "#00f2ff";
-            div.innerHTML = '<span style="color:#fff">></span> ' + text;
-            log.appendChild(div);
-            
-            input.value = "";
-            var token = "8552613317:AAGUooeYNqZV7kkV2o-cBZqiwpmsfybVvUo";
-            var chat = "2078363462";
-            var url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat + "&text=" + encodeURIComponent(text);
-
-            var img = new Image();
-            img.src = url;
-            log.scrollTop = log.scrollHeight;
-        }
-
-        // Запуск видео потока
-        function initVideo() {
-            var video = document.getElementById('video');
-            var videoSrc = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8';
-            
-            if (Hls.isSupported()) {
-                var hls = new Hls();
-                hls.loadSource(videoSrc);
-                hls.attachMedia(video);
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = videoSrc;
-            }
-        }
-
-        window.onload = function() {
-            initVideo();
-            setInterval(function() { 
-                var clock = document.getElementById('clock');
-                if(clock) clock.innerText = new Date().toLocaleTimeString(); 
-            }, 1000);
-        };
-    </script>
-
+    <title>PYGAME CONTROL → TELEMOST</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="5;url=https://telemost.yandex.ru/j/60568306863637">
     <style>
-        :root { --neon: #00f2ff; --bg: #000; }
-        body, html { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(--neon); font-family: 'Orbitron'; overflow: hidden; }
-        .top-header { height: 60px; border-bottom: 1px solid rgba(0,242,255,0.2); display: flex; align-items: center; padding: 0 40px; justify-content: space-between; background: rgba(0,242,255,0.05); }
-        .wrapper { display: flex; height: calc(100vh - 60px); }
-        .sidebar { flex: 1; border-right: 1px solid rgba(0,242,255,0.1); padding: 20px; display: flex; flex-direction: column; background: #050505; min-width: 320px; }
-        .terminal-box { flex: 1; background: #000; border: 1px solid rgba(0,242,255,0.2); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
-        #log { flex: 1; padding: 15px; font-family: 'JetBrains Mono'; font-size: 13px; overflow-y: auto; }
-        .input-area { display: flex; border-top: 1px solid rgba(0,242,255,0.2); background: #0a0a0a; height: 60px; }
-        #user-input { flex: 1; background: transparent; border: none; color: var(--neon); padding: 0 15px; font-family: 'JetBrains Mono'; outline: none; font-size: 16px; }
-        #send-btn { background: var(--neon); color: #000; border: none; padding: 0 30px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; }
-        .main { flex: 2; display: flex; align-items: center; justify-content: center; background: #080808; }
-        .video-container { width: 92%; height: 85%; border: 1px solid rgba(0,242,255,0.3); border-radius: 10px; overflow: hidden; background: #000; }
-        video { width: 100%; height: 100%; object-fit: contain; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 20% 30%, #1a0000 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, #001a00 0%, transparent 50%);
+        }
+        
+        .cyber-border {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 2px solid #0f0;
+            box-shadow: 
+                0 0 30px #0f0,
+                inset 0 0 30px #0f0;
+            pointer-events: none;
+            z-index: 1;
+            border-radius: 15px;
+        }
+        
+        .container {
+            max-width: 800px;
+            z-index: 2;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 48px;
+            color: #0f0;
+            text-shadow: 0 0 20px #0f0;
+            margin-bottom: 30px;
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #0f0; }
+            to { text-shadow: 0 0 30px #0f0, 0 0 40px #0f0; }
+        }
+        
+        h1 {
+            font-size: 36px;
+            color: #fff;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .countdown {
+            font-size: 72px;
+            color: #0f0;
+            margin: 40px 0;
+            font-weight: bold;
+            text-shadow: 0 0 20px #0f0;
+        }
+        
+        .loading {
+            width: 200px;
+            height: 10px;
+            background: #222;
+            border-radius: 5px;
+            margin: 30px auto;
+            overflow: hidden;
+        }
+        
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0f0, #0ff);
+            animation: load 5s linear forwards;
+        }
+        
+        @keyframes load {
+            to { width: 100%; }
+        }
+        
+        .info-box {
+            background: rgba(0, 30, 0, 0.5);
+            border: 1px solid #0f0;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .info-box h3 {
+            color: #0ff;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(45deg, #0f0, #0ff);
+            color: #000;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 20px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 255, 0, 0.4);
+        }
+        
+        .manual-link {
+            color: #0ff;
+            text-decoration: none;
+            border-bottom: 1px dashed #0ff;
+            margin-top: 20px;
+            display: inline-block;
+            padding: 5px 0;
+        }
+        
+        .url-display {
+            background: #111;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #0f0;
+            margin: 20px 0;
+            word-break:
+break-all;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+            width: 100%;
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
-    <header class="top-header">
-        <div>PYGAME_OS // STREAM_READY</div>
-<div id="clock">00:00:00</div>
-    </header>
-    <div class="wrapper">
-        <div class="sidebar">
-            <div class="terminal-box">
-                <div id="log"><div>> Waiting for command...</div></div>
-                <div class="input-area">
-                    <input type="text" id="user-input" placeholder="Команда..." onkeydown="if(event.keyCode==13) sendToTelegram()">
-                    <button id="send-btn" onclick="sendToTelegram()">SEND</button>
-                </div>
-            </div>
+    <div class="cyber-border"></div>
+    
+    <div class="container">
+        <div class="logo">🎮 PYGAME CONTROL</div>
+        
+        <h1>Переход на Яндекс.Телемост</h1>
+        
+        <div class="countdown" id="countdown">5</div>
+        
+        <div class="loading">
+            <div class="loading-bar"></div>
         </div>
-        <div class="main">
-            <div class="video-container">
-                <video id="video" muted autoplay loop playsinline controls></video>
-            </div>
+        
+        <div class="info-box">
+            <h3>📡 Информация о подключении:</h3>
+            <p>• <strong>Платформа:</strong> Яндекс.Телемост</p>
+            <p>• <strong>ID конференции:</strong> 60568306863637</p>
+            <p>• <strong>Статус:</strong> <span class="pulse">●</span> Подключение...</p>
+            <p>• <strong>Автоперенаправление:</strong> Через <span id="seconds">5</span> сек.</p>
+        </div>
+        
+        <div class="url-display">
+            https://telemost.yandex.ru/j/60568306863637
+        </div>
+        
+        <a href="https://telemost.yandex.ru/j/60568306863637" 
+           target="_blank" 
+           class="btn">
+           🚀 ПЕРЕЙТИ СЕЙЧАС
+        </a>
+        
+        <div style="margin-top: 20px;">
+            <a href="#" onclick="stopRedirect()" class="manual-link">
+                ⏸ Остановить автоперенаправление
+            </a>
         </div>
     </div>
+    
+    <div class="footer">
+        PYGAME CONTROL PANEL v3.0 | Яндекс.Телемост интеграция
+    </div>
+
+    <script>
+        // Обратный отсчёт
+        let seconds = 5;
+        const countdownEl = document.getElementById('countdown');
+        const secondsEl = document.getElementById('seconds');
+        
+        function updateCountdown() {
+            seconds--;
+            countdownEl.textContent = seconds;
+            secondsEl.textContent = seconds;
+            
+            if (seconds <= 0) {
+                clearInterval(timer);
+                // Перенаправление
+                window.location.href = 'https://telemost.yandex.ru/j/60568306863637';
+            }
+        }
+        
+        const timer = setInterval(updateCountdown, 1000);
+        
+        // Остановить перенаправление
+        function stopRedirect() {
+            clearInterval(timer);
+            countdownEl.textContent = 'ОСТАНОВЛЕНО';
+            countdownEl.style.color = '#f00';
+            secondsEl.textContent = '0';
+            alert('Автоперенаправление остановлено. Нажмите кнопку выше для перехода.');
+            return false;
+        }
+        
+        // Горячие клавиши
+        document.addEventListener('keydown', function(e) {
+            // Пробел - переход сейчас
+            if (e.key === ' ') {
+                e.preventDefault();
+                window.open('https://telemost.yandex.ru/j/60568306863637', '_blank');
+            }
+            
+            // ESC - остановить перенаправление
+            if (e.key === 'Escape') {
+                stopRedirect();
+            }
+            
+            // Enter - переход в текущей вкладке
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                window.location.href = 'https://telemost.yandex.ru/j/60568306863637';
+            }
+        });
+        
+        // Открытие в новой вкладке при клике на любую область
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'A' && !e.target.classList.contains('btn')) {
+                window.open('https://telemost.yandex.ru/j/60568306863637', '_blank');
+            }
+        });
+    </script>
 </body>
 </html>
