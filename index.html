@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Яндекс.Телемост - Прямой эфир</title>
+    <title>Яндекс.Телемост Live</title>
     <style>
         * {
             margin: 0;
@@ -11,318 +11,224 @@
         }
         
         body {
-            background: #000;
+            background: #0a0a0a;
             color: #fff;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
         }
         
-        .header {
-            background: linear-gradient(90deg, #f00, #ff4500);
-            padding: 20px;
-            text-align: center;
-            border-bottom: 3px solid #fff;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        .header p {
-            margin-top: 5px;
-            opacity: 0.9;
-        }
-        
-        .main-container {
-            flex: 1;
-            display: flex;
-            padding: 20px;
-            gap: 20px;
-        }
-        
-        .stream-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .stream-container {
-            flex: 1;
-            background: #111;
-            border: 3px solid #f00;
-            border-radius: 10px;
-            overflow: hidden;
+        .stream-wrapper {
+            height: 100vh;
             position: relative;
-            box-shadow: 0 0 30px rgba(255,0,0,0.3);
         }
         
-        #telemost-frame {
+        .stream-frame {
             width: 100%;
             height: 100%;
             border: none;
         }
         
-        .stream-overlay {
+        .overlay {
             position: absolute;
-            bottom: 0;
+            top: 0;
             left: 0;
             right: 0;
-            background: rgba(0,0,0,0.7);
-            padding: 15px;
-            text-align: center;
-            border-top: 2px solid #f00;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
         
-        .stream-overlay h3 {
-            color: #ff4500;
-            margin-bottom: 5px;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
         
-        .stream-info {
-            background: #222;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #f00;
+        .logo-icon {
+            font-size: 32px;
+            color: #ff1a1a;
         }
         
-        .info-section {
-            background: #1a1a1a;
-            width: 300px;
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid #333;
+        .logo-text h1 {
+            font-size: 24px;
+            font-weight: 600;
         }
         
-        .info-section h2 {
-            color: #ff4500;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #444;
-            padding-bottom: 10px;
+        .logo-text p {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 5px;
         }
         
-        .info-item {
-            margin: 10px 0;
-            padding: 10px;
-            background: #252525;
-            border-radius: 5px;
+        .status-badge {
+            background: rgba(255, 26, 26, 0.2);
+            border: 1px solid #ff1a1a;
+            border-radius: 20px;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
         }
         
-        .status-indicator {
-            display: inline-block;
+        .live-dot {
             width: 10px;
             height: 10px;
+            background: #ff1a1a;
             border-radius: 50%;
-            margin-right: 10px;
-        }
-        
-        .status-live {
-            background: #f00;
-            box-shadow: 0 0 10px #f00;
-            animation: pulse 1s infinite;
+            animation: pulse 1.5s infinite;
         }
         
         @keyframes pulse {
             0% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.4; }
             100% { opacity: 1; }
         }
         
-        .footer {
-            background: #111;
+        .bottom-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .conference-info {
+            background: rgba(255, 255, 255, 0.1);
             padding: 15px;
-            text-align: center;
-            border-top: 2px solid #333;
-            font-size: 14px;
-            color: #888;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .conference-info h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #ffcc00;
+        }
+        
+        .conference-id {
+            font-family: monospace;
+            font-size: 18px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-top: 5px;
+            display: inline-block;
         }
         
         .controls {
             display: flex;
             gap: 10px;
-            margin-top: 15px;
         }
         
         .control-btn {
-            flex: 1;
-            padding: 10px;
-            background: #333;
-            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: #fff;
+            padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background 0.3s;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
         }
         
         .control-btn:hover {
-            background: #444;
+            background: rgba(255, 255, 255, 0.2);
         }
         
-        .btn-fullscreen {
-            background: #f00;
-        }
-        
-        .btn-fullscreen:hover {
-            background: #ff3333;
+        .fullscreen-btn {
+            background: rgba(255, 26, 26, 0.3);
+            border-color: #ff1a1a;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🔴 Яндекс.Телемост - Прямой эфир</h1>
-        <p>Трансляция в реальном времени</p>
-    </div>
-    
-    <div class="main-container">
-        <div class="stream-section">
-            <div class="stream-container">
-                <iframe 
-                    id="telemost-frame"
-                    src="https://telemost.yandex.ru/j/60568306863637"
-                    allow="camera; microphone; display-capture; autoplay"
-                    allowfullscreen
-                    title="Яндекс.Телемост Трансляция"
-                ></iframe>
-                
-                <div class="stream-overlay">
-                    <h3>🔴 В ЭФИРЕ: Яндекс.Телемост</h3>
-                    <p>ID конференции: 60568306863637</p>
+    <div class="stream-wrapper">
+        <iframe 
+            class="stream-frame"
+            src="https://telemost.yandex.ru/j/60568306863637"
+            allow="camera; microphone; display-capture; autoplay"
+            allowfullscreen
+            title="Яндекс.Телемост Live"
+        ></iframe>
+        
+        <div class="overlay">
+            <div class="logo">
+                <div class="logo-icon">🔴</div>
+                <div class="logo-text">
+                    <h1>Яндекс.Телемост Live</h1>
+                    <p>Прямая трансляция в реальном времени</p>
                 </div>
             </div>
             
-            <div class="stream-info">
-                <h3>📡 Информация о трансляции:</h3>
-                <p>• Ссылка: <code>https://telemost.yandex.ru/j/60568306863637</code></p>
-                <p>• Статус: <span class="status-indicator status-live"></span> Прямой эфир</p>
-                <p>• Для участия в трансляции потребуется разрешить доступ к камере и микрофону</p>
+            <div class="status-badge">
+                <div class="live-dot"></div>
+                <span>LIVE</span>
             </div>
         </div>
         
-        <div class="info-section">
-            <h2>ℹ️ Информация</h2>
-            
-            <div class="info-item">
-                <strong>Платформа:</strong> Яндекс.Телемост
-            </div>
-            
-            <div class="info-item">
-                <strong>Статус:</strong> 
-                <span class="status-indicator status-live"></span>
-                <span id="status-text">Трансляция активна</span>
-            </div>
-            
-            <div class="info-item">
-                <strong>Участники:</strong> Онлайн
-            </div>
-            
-            <div class="info-item">
-                <strong>Качество:</strong> Автоматическое
-            </div>
-            
-            <div class="info-item">
-                <strong>Время:</strong> <span id="current-time">--:--:--</span>
+        <div class="bottom-overlay">
+            <div class="conference-info">
+                <h3>Конференция:</h3>
+                <div class="conference-id">60568306863637</div>
+                <p style="margin-top: 8px; font-size: 14px; opacity: 0.8;">
+                    Для участия разрешите доступ к камере и микрофону
+                </p>
             </div>
             
             <div class="controls">
                 <button class="control-btn" onclick="refreshStream()">
                     🔄 Обновить
                 </button>
-                <button class="control-btn btn-fullscreen" onclick="toggleFullscreen()">
+                <button class="control-btn fullscreen-btn" onclick="toggleFullscreen()">
                     ⛶ Полный экран
                 </button>
             </div>
-            
-            <div style="margin-top: 20px; padding: 10px; background: #1a1a1a; border-radius: 5px;">
-                <p style="font-size: 12px; color: #888;">
-                    📢 Для управления трансляцией используйте панель Яндекс.Телемоста
-                </p>
-            </div>
         </div>
-    </div>
-    
-    <div class="footer">
-        <p>© Яндекс.Телемост | Трансляция в реальном времени</p>
-        <p style="font-size: 12px; margin-top: 5px;">Обновлено: <span id="update-time">--:--:--</span></p>
     </div>
 
     <script>
-        // Обновление времени
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('ru-RU');
-            document.getElementById('current-time').textContent = timeString;
-            document.getElementById('update-time').textContent = timeString;
-        }
-        
-        // Обновить трансляцию
         function refreshStream() {
-            const frame = document.getElementById('telemost-frame');
-            const currentSrc = frame.src;
+            const frame = document.querySelector('.stream-frame');
+            const src = frame.src;
             frame.src = '';
-            setTimeout(() => {
-                frame.src = currentSrc;
-                document.getElementById('status-text').textContent = 'Трансляция перезагружена';
-                setTimeout(() => {
-                    document.getElementById('status-text').textContent = 'Трансляция активна';
-                }, 2000);
-            }, 100);
+            setTimeout(() => frame.src = src, 100);
         }
         
-        // Полноэкранный режим
         function toggleFullscreen() {
-            const frame = document.getElementById('telemost-frame');
+            const frame = document.querySelector('.stream-frame');
             
             if (!document.fullscreenElement) {
-                if (frame.requestFullscreen) {
-                    frame.requestFullscreen();
-                } else if (frame.webkitRequestFullscreen) {
-                    frame.webkitRequestFullscreen();
-                } else if (frame.msRequestFullscreen) {
-                    frame.msRequestFullscreen();
-                }
+                if (frame.requestFullscreen) frame.requestFullscreen();
+                else if (frame.webkitRequestFullscreen) frame.webkitRequestFullscreen();
+                else if (frame.msRequestFullscreen) frame.msRequestFullscreen();
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+                if (document.exitFullscreen) document.exitFullscreen();
             }
         }
         
-        // Обновление времени каждую секунду
-        setInterval(updateTime, 1000);
-        updateTime();
+        // Автоскрытие оверлея через 5 секунд без движения мыши
+        let timeout;
+        function resetTimer() {
+            document.querySelector('.overlay').style.opacity = '1';
+            document.querySelector('.bottom-overlay').style.opacity = '1';
+            
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                document.querySelector('.overlay').style.opacity = '0';
+                document.querySelector('.bottom-overlay').style.opacity = '0';
+            }, 5000);
+        }
         
-        // Автообновление страницы каждые 30 минут (опционально)
-        // setTimeout(() => location.reload(), 30 * 60 * 1000);
-        
-        // Обработка клавиш
-        document.addEventListener('keydown', (e) => {
-            // F11 - полноэкранный режим
-            if (e.key === 'F11') {
-                e.preventDefault();
-                toggleFullscreen();
-            }
-            // F5 - обновить
-            if (e.key === 'F5') {
-                e.preventDefault();
-                refreshStream();
-            }
-            // R - обновить
-            if (e.key === 'r' || e.key === 'R') {
-                if (e.ctrlKey) {
-                    refreshStream();
-                }
-            }
-        });
-        
-        // Информация о загрузке
-        window.addEventListener('load', () => {
-            console.log('Страница трансляции загружена');
-            console.log('Ссылка на телемост:', document.getElementById('telemost-frame').src);
-        });
+        document.addEventListener('mousemove', resetTimer);
+        document.addEventListener('click', resetTimer);
+        resetTimer(); // Начальный таймер
     </script>
 </body>
 </html>
