@@ -2,7 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>LIVE TELEMOST</title>
+    <title>PYGAME CONTROL → TELEMOST</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="5;url=https://telemost.yandex.ru/j/60568306863637">
     <style>
         * {
             margin: 0;
@@ -11,359 +13,264 @@
         }
         
         body {
-            background: #0a0a0a;
+            background: #000;
             color: #fff;
             font-family: 'Courier New', monospace;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 20% 30%, #1a0000 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, #001a00 0%, transparent 50%);
+        }
+        
+        .cyber-border {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 2px solid #0f0;
+            box-shadow: 
+                0 0 30px #0f0,
+                inset 0 0 30px #0f0;
+            pointer-events: none;
+            z-index: 1;
+            border-radius: 15px;
         }
         
         .container {
-            display: flex;
-            height: 100vh;
-        }
-        
-        /* Левая панель с шестерёнками */
-        .side-panel {
-            width: 80px;
-            background: #1a1a1a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 40px;
-            border-right: 2px solid #f00;
-        }
-        
-        .gear {
-            font-size: 36px;
-            color: #f00;
-            margin: 30px 0;
-            animation: spin 6s linear infinite;
-            opacity: 0.7;
-        }
-        
-        .gear:nth-child(2) {
-            animation-duration: 8s;
-            animation-direction: reverse;
-        }
-        
-        .gear:nth-child(3) {
-            animation-duration: 10s;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Центральная панель с трансляцией */
-        .main-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #000;
-        }
-        
-        .header {
-            background: linear-gradient(90deg, #000, #1a0000);
-            padding: 15px 30px;
-            border-bottom: 2px solid #f00;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .site-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #f00;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(255,0,0,0.5);
-        }
-        
-        .status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            background: #f00;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
-        }
-        
-        .stream-container {
-            flex: 1;
+            max-width: 800px;
+            z-index: 2;
             position: relative;
-            background: #000;
         }
         
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: #000;
+        .logo {
+            font-size: 48px;
+            color: #0f0;
+            text-shadow: 0 0 20px #0f0;
+            margin-bottom: 30px;
+            animation: glow 2s infinite alternate;
         }
         
-        .stream-overlay {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            right: 0;
-            text-align: center;
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #0f0; }
+            to { text-shadow: 0 0 30px #0f0, 0 0 40px #0f0; }
+        }
+        
+        h1 {
+            font-size: 36px;
             color: #fff;
-            background: rgba(0,0,0,0.7);
-            padding: 10px;
-            font-size: 14px;
-            border-top: 2px solid #f00;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
         
-        .controls {
-            padding: 20px;
-            background: #111;
-            border-top: 2px solid #333;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
+        .countdown {
+            font-size: 72px;
+            color: #0f0;
+            margin: 40px 0;
+            font-weight: bold;
+            text-shadow: 0 0 20px #0f0;
+        }
+        
+        .loading {
+            width: 200px;
+            height: 10px;
+            background: #222;
+            border-radius: 5px;
+            margin: 30px auto;
+            overflow: hidden;
+        }
+        
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0f0, #0ff);
+            animation: load 5s linear forwards;
+        }
+        
+        @keyframes load {
+            to { width: 100%; }
+        }
+        
+        .info-box {
+            background: rgba(0, 30, 0, 0.5);
+            border: 1px solid #0f0;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .info-box h3 {
+            color: #0ff;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 10px;
         }
         
         .btn {
-            padding: 12px 30px;
-            background: #f00;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(45deg, #0f0, #0ff);
+            color: #000;
+            text-decoration: none;
+            border-radius: 8px;
             font-weight: bold;
-            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            margin: 20px;
             transition: all 0.3s;
         }
         
         .btn:hover {
-            background: #ff3333;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255,0,0,0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 255, 0, 0.4);
         }
         
-        .btn-stop {
-            background: #333;
+        .manual-link {
+            color: #0ff;
+            text-decoration: none;
+            border-bottom: 1px dashed #0ff;
+            margin-top: 20px;
+            display: inline-block;
+            padding: 5px 0;
         }
         
-        .btn-stop:hover {
-            background: #444;
-        }
-        
-        /* Правая панель */
-        .right-panel {
-            width: 80px;
-            background: #1a1a1a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 40px;
-            border-left: 2px solid #f00;
-        }
-        
-        .info-box {
-            position: absolute;
-            bottom: 20px;
-            right: 100px;
-            background: rgba(0,0,0,0.8);
+        .url-display {
+            background: #111;
             padding: 15px;
             border-radius: 8px;
-            border: 1px solid #f00;
-            font-size: 12px;
-            max-width: 300px;
+            border-left: 4px solid #0f0;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 14px;
         }
         
         .footer {
-            position: absolute;
-            bottom: 10px;
-            left: 100px;
+            margin-top: 40px;
             color: #666;
-            font-size: 11px;
+            font-size: 12px;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+            width: 100%;
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Левая панель с шестерёнками -->
-        <div class="side-panel">
-            <div class="gear">⚙</div>
-            <div class="gear">⚙</div>
-            <div class="gear">⚙</div>
-        </div>
-        
-        <!-- Основная панель -->
-        <div class="main-panel">
-            <!-- Заголовок -->
-            <div class="header">
-                <div class="site-title">PYGAME CONTROL</div>
-                <div class="status">
-                    <div class="status-dot"></div>
-                    <span id="statusText">LIVE STREAM</span>
-                </div>
-            </div>
-            
-            <!-- Трансляция -->
-            <div class="stream-container">
-                <iframe 
-                    id="telemostFrame"
-                    src="https://telemost.yandex.ru/j/60568306863637"
-                    allow="camera; microphone; display-capture; autoplay"
-                    allowfullscreen
-                    title="Yandex Telemost Live Stream"
-                ></iframe>
-                
-                <div class="stream-overlay">
-                    🔴 YANDEX TELEMOST LIVE | ID: 60568306863637
-                </div>
-            </div>
-            
-            <!-- Управление -->
-            <div class="controls">
-                <button class="btn" onclick="reloadStream()">🔄 RELOAD</button>
-                <button class="btn" onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
-                <button class="btn btn-stop" onclick="stopStream()">⏹ STOP</button>
-            </div>
-        </div>
-        
-        <!-- Правая панель с шестерёнками -->
-        <div class="right-panel">
-            <div class="gear">⚙</div>
-            <div class="gear">⚙</div>
-            <div class="gear">⚙</div>
-        </div>
-    </div>
+    <div class="cyber-border"></div>
     
-    <!-- Информация -->
-    <div class="info-box">
-        <strong>📡 TELEMOST INFO:</strong><br>
-        URL: https://telemost.yandex.ru/j/60568306863637<br>
-        Status: <span id="connectionStatus">CONNECTED</span><br>
-        Controls: Use buttons or F11 for fullscreen
+    <div class="container">
+        <div class="logo">🎮 PYGAME CONTROL</div>
+        
+        <h1>Переход на Яндекс.Телемост</h1>
+        
+        <div class="countdown" id="countdown">5</div>
+        
+        <div class="loading">
+            <div class="loading-bar"></div>
+        </div>
+        
+        <div class="info-box">
+            <h3>📡 Информация о подключении:</h3>
+            <p>• <strong>Платформа:</strong> Яндекс.Телемост</p>
+            <p>• <strong>ID конференции:</strong> 60568306863637</p>
+            <p>• <strong>Статус:</strong> <span class="pulse">●</span> Подключение...</p>
+            <p>• <strong>Автоперенаправление:</strong> Через <span id="seconds">5</span> сек.</p>
+        </div>
+        
+        <div class="url-display">
+            https://telemost.yandex.ru/j/60568306863637
+        </div>
+        
+        <a href="https://telemost.yandex.ru/j/60568306863637" 
+           target="_blank" 
+           class="btn">
+           🚀 ПЕРЕЙТИ СЕЙЧАС
+        </a>
+        
+        <div style="margin-top: 20px;">
+            <a href="#" onclick="stopRedirect()" class="manual-link">
+                ⏸ Остановить автоперенаправление
+            </a>
+        </div>
     </div>
     
     <div class="footer">
-        PYGAME INTERFACE v2.0 | TELEMOST INTEGRATION
+        PYGAME CONTROL PANEL v3.0 | Яндекс.Телемост интеграция
     </div>
 
     <script>
-        // Элементы
-        const telemostFrame = document.getElementById('telemostFrame');
-        const statusText = document.getElementById('statusText');
-        const connectionStatus = document.getElementById('connectionStatus');
+        // Обратный отсчёт
+        let seconds = 5;
+        const countdownEl = document.getElementById('countdown');
+        const secondsEl = document.getElementById('seconds');
         
-        // Перезагрузить поток
-        function reloadStream() {
-            const currentSrc = telemostFrame.src;
-            telemostFrame.src = '';
+        function updateCountdown() {
+            seconds--;
+            countdownEl.textContent = seconds;
+            secondsEl.textContent = seconds;
             
-            setTimeout(() => {
-                telemostFrame.src = currentSrc;
-                statusText.textContent = 'RELOADING...';
-                statusText.style.color = '#ff0';
-                
-                setTimeout(() => {
-                    statusText.textContent = 'LIVE STREAM';
-                    statusText.style.color = '#fff';
-                    connectionStatus.textContent = 'CONNECTED';
-                    connectionStatus.style.color = '#0f0';
-                }, 2000);
-            }, 100);
-        }
-        
-        // Полноэкранный режим
-        function toggleFullscreen() {
-            const iframe = telemostFrame;
-            
-            if (!document.fullscreenElement) {
-                if (iframe.requestFullscreen) {
-                    iframe.requestFullscreen();
-                } else if (iframe.webkitRequestFullscreen) {
-                    iframe.webkitRequestFullscreen();
-                } else if (iframe.msRequestFullscreen) {
-                    iframe.msRequestFullscreen();
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+            if (seconds <= 0) {
+                clearInterval(timer);
+                // Перенаправление
+                window.location.href = 'https://telemost.yandex.ru/j/60568306863637';
             }
         }
         
-        // Остановить поток
-        function stopStream() {
-            telemostFrame.src = '';
-            statusText.textContent = 'STOPPED';
-            statusText.style.color = '#f00';
-            connectionStatus.textContent = 'DISCONNECTED';
-            connectionStatus.style.color = '#f00';
-            
-            setTimeout(() => {
-                telemostFrame.src = 'https://telemost.yandex.ru/j/60568306863637';
-                statusText.textContent = 'LIVE STREAM';
-                statusText.style.color = '#fff';
-                connectionStatus.textContent = 'CONNECTED';
-                connectionStatus.style.color = '#0f0';
-            }, 3000);
-        }
+        const timer = setInterval(updateCountdown, 1000);
         
-        // Автообновление каждые 30 минут
-        setInterval(reloadStream, 30 * 60 * 1000);
+        // Остановить перенаправление
+        function stopRedirect() {
+            clearInterval(timer);
+            countdownEl.textContent = 'ОСТАНОВЛЕНО';
+            countdownEl.style.color = '#f00';
+            secondsEl.textContent = '0';
+            alert('Автоперенаправление остановлено. Нажмите кнопку выше для перехода.');
+            return false;
+        }
         
         // Горячие клавиши
         document.addEventListener('keydown', function(e) {
-            // F5 - обновить
-            if (e.key === 'F5') {
-                e.preventDefault();
-                reloadStream();
-            }
-            
-            // F11 - полный экран
-            if (e.key === 'F11') {
-                e.preventDefault();
-                toggleFullscreen();
-            }
-            
-            // Пробел - перезапуск
+            // Пробел - переход сейчас
             if (e.key === ' ') {
                 e.preventDefault();
-                reloadStream();
+                window.open('https://telemost.yandex.ru/j/60568306863637', '_blank');
             }
             
-            // ESC - выход из полного экрана
-            if (e.key === 'Escape' && document.fullscreenElement) {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+            // ESC - остановить перенаправление
+            if (e.key === 'Escape') {
+                stopRedirect();
+            }
+            
+            // Enter - переход в текущей вкладке
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                window.location.href = 'https://telemost.yandex.ru/j/60568306863637';
             }
         });
         
-        // Проверка соединения
-        window.addEventListener('online', function() {
-            connectionStatus.textContent = 'CONNECTED';
-            connectionStatus.style.color = '#0f0';
+        // Открытие в новой вкладке при клике на любую область
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'A' && !e.target.classList.contains('btn')) {
+                window.open('https://telemost.yandex.ru/j/60568306863637', '_blank');
+            }
         });
-        
-        window.addEventListener('offline', function() {
-            connectionStatus.textContent = 'NO CONNECTION';
-            connectionStatus.style.color = '#f00';
-        });
-        
-        // Инициализация
-        console.log('Telemost Stream Loaded:');
-        console.log('URL:', telemostFrame.src);
-        console.log('Controls: F5=Reload, F11=Fullscreen, Space=Restart');
     </script>
 </body>
 </html>
